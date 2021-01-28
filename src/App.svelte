@@ -15,6 +15,11 @@
   // https://ide.ligolang.org/p/DHZ-nxgoWeVxLwgivpad-w
   // https://better-call.dev/delphinet/KT1EJGjahTifrVz8zWjJ6C4J2JBzvbZnYot4/storage
 
+  interface TestResult {
+    success: boolean;
+    opHash: string;
+  }
+
   let tests: {
     id: string;
     name: string;
@@ -27,6 +32,7 @@
   let userAddress: string;
   const contractAddress = "KT1EJGjahTifrVz8zWjJ6C4J2JBzvbZnYot4";
   let contract: ContractAbstraction<Wallet>;
+  let opHash: string = "";
 
   const initBeacon = async () => {
     wallet = new BeaconWallet({
@@ -95,56 +101,59 @@
     }
   };
 
-  const sendTez = async (): Promise<boolean> => {
+  const sendTez = async (): Promise<TestResult> => {
     try {
       const op = await Tezos.wallet
         .transfer({ to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb", amount: 2 })
         .send();
       await op.confirmation();
-
-      return true;
+      return { success: true, opHash };
     } catch (error) {
       console.log(error);
-      return false;
+      return { success: false, opHash: "" };
     }
   };
 
-  const sendInt = async (): Promise<boolean> => {
+  const sendInt = async (): Promise<TestResult> => {
     try {
       const op = await contract.methods.simple_param(5).send();
+      opHash = op.opHash;
       await op.confirmation();
-
-      return true;
+      return { success: true, opHash };
     } catch (error) {
       console.log(error);
-      return false;
+      return { success: false, opHash: "" };
     }
   };
 
-  const sendComplexParam = async (): Promise<boolean> => {
+  const sendComplexParam = async (): Promise<TestResult> => {
+    opHash = "";
     try {
       const op = await contract.methods.complex_param(5, "Taquito").send();
+      opHash = op.opHash;
       await op.confirmation();
-
-      return true;
+      return { success: true, opHash };
     } catch (error) {
       console.log(error);
-      return false;
+      return { success: false, opHash: "" };
     }
   };
 
-  const callFail = async (): Promise<boolean> => {
+  const callFail = async (): Promise<TestResult> => {
+    opHash = "";
     try {
       const op = await contract.methods.fail([["unit"]]).send();
+      opHash = op.opHash;
       await op.confirmation();
-      return false;
+      return { success: true, opHash };
     } catch (error) {
       console.log(error);
-      return true;
+      return { success: false, opHash: "" };
     }
   };
 
-  const originateSuccess = async (): Promise<boolean> => {
+  const originateSuccess = async (): Promise<TestResult> => {
+    opHash = "";
     try {
       // fetches contract code
       const code = (
@@ -152,11 +161,12 @@
       ).script.code;
       const storage = new MichelsonMap();
       const op = await Tezos.wallet.originate({ code, storage }).send();
+      opHash = op.opHash;
       await op.confirmation();
-      return true;
+      return { success: true, opHash };
     } catch (error) {
       console.log(error);
-      return false;
+      return { success: false, opHash: "" };
     }
   };
 
