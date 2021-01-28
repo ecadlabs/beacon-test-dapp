@@ -43,6 +43,7 @@ a {
   border-radius: 10px;
   padding: 15px 20px;
   margin: 20px 10px;
+  transition: background-color 1s linear;
 
   &.connect {
     padding: 50px 80px;
@@ -66,6 +67,14 @@ a {
 
   &.test {
     width: 30%;
+  }
+
+  &.success {
+    background-color: rgba(209, 250, 229, 1);
+  }
+
+  &.error {
+    background-color: rgba(254, 226, 226, 1);
   }
 }
 

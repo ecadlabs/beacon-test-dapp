@@ -5,6 +5,7 @@
 
   let executionTime = 0;
   let loading = false;
+  let success: boolean | undefined;
 
   const runTest = async () => {
     loading = true;
@@ -15,11 +16,14 @@
       if (result) {
         const t2 = performance.now();
         executionTime = t2 - t1;
+        success = true;
       }
     } catch (error) {
       console.log(error);
+      success = false;
     } finally {
       loading = false;
+      setTimeout(() => (success = undefined), 4000);
     }
   };
 </script>
@@ -35,13 +39,15 @@
 </style>
 
 <div
-  class="box test"
+  class={`box test ${
+    success !== undefined ? (success ? "success" : "error") : ""
+  }`}
   id={`test-${test.id}`}
   in:fly={{ x: -1000, duration: 1000, delay: +index * 400 }}
 >
   <h3>Test {index + 1}: <br /> {test.name}</h3>
   <p id="test-description">{test.description}</p>
-  {#if executionTime}
+  {#if executionTime && test.showExecutionTime}
     <p>
       Execution time: {Math.round(executionTime).toLocaleString("en-US")} ms
     </p>
@@ -52,7 +58,8 @@
     <button
       class={`button blue ${loading ? "loading" : ""}`}
       disabled={loading}
-      on:click={runTest}>
+      on:click={runTest}
+    >
       {#if loading}
         Running...
       {:else}

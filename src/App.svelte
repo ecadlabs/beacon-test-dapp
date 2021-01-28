@@ -2,7 +2,12 @@
   import { onMount } from "svelte";
   import { fly } from "svelte/transition";
   import { expoInOut } from "svelte/easing";
-  import { TezosToolkit, ContractAbstraction, Wallet } from "@taquito/taquito";
+  import {
+    TezosToolkit,
+    ContractAbstraction,
+    Wallet,
+    MichelsonMap
+  } from "@taquito/taquito";
   import { BeaconWallet } from "@taquito/beacon-wallet";
   import { NetworkType } from "@airgap/beacon-sdk";
   import Box from "./Box.svelte";
@@ -15,6 +20,7 @@
     name: string;
     description: string;
     run: any;
+    showExecutionTime: boolean;
   }[] = [];
   let Tezos: TezosToolkit;
   let wallet: BeaconWallet;
@@ -25,40 +31,51 @@
   const initBeacon = async () => {
     wallet = new BeaconWallet({
       name: "Beacon Test Dapp",
+      matrixNodes: ["matrix.tez.ie"] as any,
       eventHandlers: {
         ACTIVE_TRANSPORT_SET: {
           handler: async data => {
-            console.log("active transport set:", data);
+            // console.log("ACTIVE_TRANSPORT_SET:", data);
           }
         },
         ACTIVE_ACCOUNT_SET: {
           handler: async data => {
-            console.log("active account set:", data);
+            // console.log("ACTIVE_ACCOUNT_SET:", data);
           }
         },
         PAIR_SUCCESS: {
           handler: async data => {
-            console.log("pair success:", data);
+            // console.log("PAIR_SUCCESS:", data);
           }
         },
         PERMISSION_REQUEST_SENT: {
           handler: async data => {
-            console.log("permission request success:", data);
+            // console.log("permission request success:", data);
           }
         },
         PERMISSION_REQUEST_SUCCESS: {
           handler: async data => {
-            console.log("permission request success:", data);
+            // console.log("PERMISSION_REQUEST_SUCCESS:", data);
           }
         },
         OPERATION_REQUEST_SENT: {
           handler: async data => {
-            console.log("permission request success:", data);
+            // console.log("PERMISSION_REQUEST_SUCCESS:", data);
           }
         },
         OPERATION_REQUEST_SUCCESS: {
           handler: async data => {
-            console.log("permission request success:", data);
+            // console.log("OPERATION_REQUEST_SUCCESS:", data);
+          }
+        },
+        OPERATION_REQUEST_ERROR: {
+          handler: async data => {
+            // console.log("BROADCAST_REQUEST_ERROR:", data);
+          }
+        },
+        BROADCAST_REQUEST_ERROR: {
+          handler: async data => {
+            // console.log("BROADCAST_REQUEST_ERROR:", data);
           }
         }
       }
@@ -127,6 +144,22 @@
     }
   };
 
+  const originateSuccess = async (): Promise<boolean> => {
+    try {
+      // fetches contract code
+      const code = (
+        await Tezos.wallet.at("KT1FQZEiij4Sz9wvzRUtyLYE9X92Jsd3BvWV")
+      ).script.code;
+      const storage = new MichelsonMap();
+      const op = await Tezos.wallet.originate({ code, storage }).send();
+      await op.confirmation();
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  };
+
   onMount(async () => {
     Tezos = new TezosToolkit("https://testnet-tezos.giganode.io");
     // instantiates contract
@@ -137,35 +170,40 @@
         id: "send-tez",
         name: "Send tez",
         description: "This test sends 2 tez to Alice's address",
-        run: sendTez
+        run: sendTez,
+        showExecutionTime: false
       },
       {
         id: "contract-call-simple-type",
         name: "Contract call with int",
         description: "This test calls a contract entrypoint and passes an int",
-        run: sendInt
+        run: sendInt,
+        showExecutionTime: false
       },
       {
         id: "contract-call-complex-type",
         name: "Contract call with (pair nat string)",
         description:
           "This test calls a contract entrypoint and passes a pair holding a nat and a string",
-        run: sendComplexParam
+        run: sendComplexParam,
+        showExecutionTime: false
       },
       {
         id: "contract-call-fail",
         name: "Contract call that fails",
         description:
           'This test calls a contract entrypoint that fails with the message "Fail entrypoint"',
-        run: callFail
-      }
-      /*{
+        run: callFail,
+        showExecutionTime: false
+      },
+      {
         id: "originate-success",
         name: "Originate smart contract with success",
         description: "This test successfully originates a smart contract",
-        run: () => console.log("originate-success")
-      },
-      {
+        run: originateSuccess,
+        showExecutionTime: false
+      }
+      /*{
         id: "originate-fail",
         name: "Originate smart contract that fails",
         description: "This test originates a smart contract that fails",
