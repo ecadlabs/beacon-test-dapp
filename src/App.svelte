@@ -170,6 +170,35 @@
     }
   };
 
+  const batchApiTest = async (): Promise<TestResult> => {
+    opHash = "";
+    try {
+      const op = await Tezos.batch()
+        .withTransfer({
+          to: "tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu",
+          amount: 300000,
+          mutez: true
+        })
+        .withTransfer({
+          to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb",
+          amount: 300000,
+          mutez: true
+        })
+        .withTransfer({
+          to: "tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6",
+          amount: 300000,
+          mutez: true
+        })
+        .send();
+      opHash = op.hash;
+      await op.confirmation();
+      return { success: true, opHash };
+    } catch (error) {
+      console.log(error);
+      return { success: false, opHash: "" };
+    }
+  };
+
   onMount(async () => {
     Tezos = new TezosToolkit("https://testnet-tezos.giganode.io");
     // instantiates contract
@@ -211,6 +240,13 @@
         name: "Originate smart contract with success",
         description: "This test successfully originates a smart contract",
         run: originateSuccess,
+        showExecutionTime: false
+      },
+      {
+        id: "batch-api",
+        name: "Use the Batch API with a wallet",
+        description: "This test sends 0.3 tez to 3 different addresses",
+        run: batchApiTest,
         showExecutionTime: false
       }
       /*{
