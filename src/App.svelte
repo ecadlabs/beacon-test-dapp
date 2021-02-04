@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { fly } from "svelte/transition";
   import { expoInOut } from "svelte/easing";
   import { TezosToolkit, ContractAbstraction, Wallet } from "@taquito/taquito";
@@ -30,6 +30,7 @@
     wallet = new BeaconWallet({
       name: "Beacon Test Dapp",
       matrixNodes: [defaultMatrixNode] as any,
+      preferredNetwork: NetworkType.DELPHINET,
       eventHandlers: {
         ACTIVE_TRANSPORT_SET: {
           handler: async data => {
@@ -98,6 +99,10 @@
     // instantiates contract
     contract = await Tezos.wallet.at(contractAddress);
     tests = initializeTests(Tezos, contract);
+  });
+
+  onDestroy(async () => {
+    await wallet.client.destroy();
   });
 </script>
 
