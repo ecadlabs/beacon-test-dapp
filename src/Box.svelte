@@ -60,7 +60,9 @@
   {#if opHash}
     <p>
       <a
-        href={`https://better-call.dev/delphinet/opg/${opHash}/contents`}
+        href={test.id === "send-tez"
+          ? `https://delphinet.tzkt.io/${opHash}`
+          : `https://better-call.dev/delphinet/opg/${opHash}/contents`}
         target="_blank"
         rel="noopener noreferrer nofollow">View operation</a
       >
