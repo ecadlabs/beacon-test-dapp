@@ -1,0 +1,170 @@
+import {
+  TezosToolkit,
+  ContractAbstraction,
+  Wallet,
+  MichelsonMap
+} from "@taquito/taquito";
+
+interface TestResult {
+  success: boolean;
+  opHash: string;
+}
+
+const sendTez = async (Tezos: TezosToolkit): Promise<TestResult> => {
+  let opHash = "";
+  try {
+    const op = await Tezos.wallet
+      .transfer({ to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb", amount: 1 })
+      .send();
+    await op.confirmation();
+    opHash = op.opHash;
+    return { success: true, opHash };
+  } catch (error) {
+    console.log(error);
+    return { success: false, opHash: "" };
+  }
+};
+
+const sendInt = async (
+  contract: ContractAbstraction<Wallet>
+): Promise<TestResult> => {
+  let opHash = "";
+  try {
+    const op = await contract.methods.simple_param(5).send();
+    opHash = op.opHash;
+    await op.confirmation();
+    return { success: true, opHash };
+  } catch (error) {
+    console.log(error);
+    return { success: false, opHash: "" };
+  }
+};
+
+const sendComplexParam = async (
+  contract: ContractAbstraction<Wallet>
+): Promise<TestResult> => {
+  let opHash = "";
+  try {
+    const op = await contract.methods.complex_param(5, "Taquito").send();
+    opHash = op.opHash;
+    await op.confirmation();
+    return { success: true, opHash };
+  } catch (error) {
+    console.log(error);
+    return { success: false, opHash: "" };
+  }
+};
+
+const callFail = async (
+  contract: ContractAbstraction<Wallet>
+): Promise<TestResult> => {
+  let opHash = "";
+  try {
+    const op = await contract.methods.fail([["unit"]]).send();
+    opHash = op.opHash;
+    await op.confirmation();
+    return { success: true, opHash };
+  } catch (error) {
+    console.log(error);
+    return { success: false, opHash: "" };
+  }
+};
+
+const originateSuccess = async (Tezos: TezosToolkit): Promise<TestResult> => {
+  let opHash = "";
+  try {
+    // fetches contract code
+    const code = (await Tezos.wallet.at("KT1FQZEiij4Sz9wvzRUtyLYE9X92Jsd3BvWV"))
+      .script.code;
+    const storage = new MichelsonMap();
+    const op = await Tezos.wallet.originate({ code, storage }).send();
+    opHash = op.opHash;
+    await op.confirmation();
+    return { success: true, opHash };
+  } catch (error) {
+    console.log(error);
+    return { success: false, opHash: "" };
+  }
+};
+
+const batchApiTest = async (Tezos: TezosToolkit): Promise<TestResult> => {
+  let opHash = "";
+  try {
+    const op = await Tezos.batch()
+      .withTransfer({
+        to: "tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu",
+        amount: 300000,
+        mutez: true
+      })
+      .withTransfer({
+        to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb",
+        amount: 300000,
+        mutez: true
+      })
+      .withTransfer({
+        to: "tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6",
+        amount: 300000,
+        mutez: true
+      })
+      .send();
+    opHash = op.hash;
+    await op.confirmation();
+    return { success: true, opHash };
+  } catch (error) {
+    console.log(error);
+    return { success: false, opHash: "" };
+  }
+};
+
+export default (Tezos: TezosToolkit, contract: ContractAbstraction<Wallet>) => [
+  {
+    id: "send-tez",
+    name: "Send tez",
+    description: "This test sends 1 tez to Alice's address",
+    run: () => sendTez(Tezos),
+    showExecutionTime: false
+  },
+  {
+    id: "contract-call-simple-type",
+    name: "Contract call with int",
+    description: "This test calls a contract entrypoint and passes an int",
+    run: () => sendInt(contract),
+    showExecutionTime: false
+  },
+  {
+    id: "contract-call-complex-type",
+    name: "Contract call with (pair nat string)",
+    description:
+      "This test calls a contract entrypoint and passes a pair holding a nat and a string",
+    run: () => sendComplexParam(contract),
+    showExecutionTime: false
+  },
+  {
+    id: "contract-call-fail",
+    name: "Contract call that fails",
+    description:
+      'This test calls a contract entrypoint that fails with the message "Fail entrypoint"',
+    run: () => callFail(contract),
+    showExecutionTime: false
+  },
+  {
+    id: "originate-success",
+    name: "Originate smart contract with success",
+    description: "This test successfully originates a smart contract",
+    run: () => originateSuccess(Tezos),
+    showExecutionTime: false
+  },
+  {
+    id: "batch-api",
+    name: "Use the Batch API with a wallet",
+    description: "This test sends 0.3 tez to 3 different addresses",
+    run: () => batchApiTest(Tezos),
+    showExecutionTime: false
+  }
+  /*{
+      id: "originate-fail",
+      name: "Originate smart contract that fails",
+      description: "This test originates a smart contract that fails",
+      run: () => console.log("originate-fail")
+    }*/
+];
