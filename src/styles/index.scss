@@ -101,6 +101,15 @@ $dark-ratio: 15;
     &:hover {
       margin-left: 35px;
     }
+
+    input[type="text"] {
+      padding: 10px;
+      border-radius: 10px;
+      width: 50%;
+      border: none;
+      outline: none;
+      background-color: lighten($blue, 12);
+    }
   }
 
   &.success {

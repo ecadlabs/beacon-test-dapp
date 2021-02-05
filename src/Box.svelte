@@ -7,6 +7,7 @@
   let loading = false;
   let success: boolean | undefined;
   let opHash = "";
+  let input = "";
 
   const runTest = async () => {
     loading = true;
@@ -14,7 +15,12 @@
     opHash = "";
     const t1 = performance.now();
     try {
-      const result = await test.run();
+      let result;
+      if (test.id === "sign-payload") {
+        result = await test.run({ payload: input });
+      } else {
+        result = await test.run();
+      }
       if (result && result.success === true) {
         const t2 = performance.now();
         executionTime = t2 - t1;
@@ -52,6 +58,9 @@
 >
   <h3>Test {index + 1}: <br /> {test.name}</h3>
   <p id="test-description">{test.description}</p>
+  {#if test.inputRequired}
+    <input type="text" placeholder="Input" bind:value={input} />
+  {/if}
   {#if executionTime && test.showExecutionTime}
     <p>
       Execution time: {Math.round(executionTime).toLocaleString("en-US")} ms

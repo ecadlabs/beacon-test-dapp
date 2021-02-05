@@ -4,11 +4,9 @@ import {
   Wallet,
   MichelsonMap
 } from "@taquito/taquito";
-
-interface TestResult {
-  success: boolean;
-  opHash: string;
-}
+import { BeaconWallet } from "@taquito/beacon-wallet";
+import { RequestSignPayloadInput } from "@airgap/beacon-sdk";
+import { TestSettings, TestResult } from "./types";
 
 const sendTez = async (Tezos: TezosToolkit): Promise<TestResult> => {
   let opHash = "";
@@ -116,20 +114,35 @@ const batchApiTest = async (Tezos: TezosToolkit): Promise<TestResult> => {
   }
 };
 
-export default (Tezos: TezosToolkit, contract: ContractAbstraction<Wallet>) => [
+const signPayload = async (
+  input: RequestSignPayloadInput,
+  wallet: BeaconWallet
+): Promise<TestResult> => {
+  const signedPayload = await wallet.client.requestSignPayload(input);
+
+  return { success: true, opHash: "", output: signedPayload.signature };
+};
+
+export default (
+  Tezos: TezosToolkit,
+  contract: ContractAbstraction<Wallet>,
+  wallet: BeaconWallet
+): TestSettings[] => [
   {
     id: "send-tez",
     name: "Send tez",
     description: "This test sends 1 tez to Alice's address",
     run: () => sendTez(Tezos),
-    showExecutionTime: false
+    showExecutionTime: false,
+    inputRequired: false
   },
   {
     id: "contract-call-simple-type",
     name: "Contract call with int",
     description: "This test calls a contract entrypoint and passes an int",
     run: () => sendInt(contract),
-    showExecutionTime: false
+    showExecutionTime: false,
+    inputRequired: false
   },
   {
     id: "contract-call-complex-type",
@@ -137,7 +150,8 @@ export default (Tezos: TezosToolkit, contract: ContractAbstraction<Wallet>) => [
     description:
       "This test calls a contract entrypoint and passes a pair holding a nat and a string",
     run: () => sendComplexParam(contract),
-    showExecutionTime: false
+    showExecutionTime: false,
+    inputRequired: false
   },
   {
     id: "contract-call-fail",
@@ -145,21 +159,32 @@ export default (Tezos: TezosToolkit, contract: ContractAbstraction<Wallet>) => [
     description:
       'This test calls a contract entrypoint that fails with the message "Fail entrypoint"',
     run: () => callFail(contract),
-    showExecutionTime: false
+    showExecutionTime: false,
+    inputRequired: false
   },
   {
     id: "originate-success",
     name: "Originate smart contract with success",
     description: "This test successfully originates a smart contract",
     run: () => originateSuccess(Tezos),
-    showExecutionTime: false
+    showExecutionTime: false,
+    inputRequired: false
   },
   {
     id: "batch-api",
     name: "Use the Batch API with a wallet",
     description: "This test sends 0.3 tez to 3 different addresses",
     run: () => batchApiTest(Tezos),
-    showExecutionTime: false
+    showExecutionTime: false,
+    inputRequired: false
+  },
+  {
+    id: "sign-payload",
+    name: "Signing of provided payload",
+    description: "This test signs the payload provided by the user",
+    run: input => signPayload(input, wallet),
+    showExecutionTime: false,
+    inputRequired: true
   }
   /*{
       id: "originate-fail",

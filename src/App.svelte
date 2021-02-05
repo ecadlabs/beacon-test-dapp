@@ -7,23 +7,17 @@
   import { NetworkType } from "@airgap/beacon-sdk";
   import Box from "./Box.svelte";
   import initializeTests from "./tests";
+  import { TestSettings } from "./types";
 
   // https://ide.ligolang.org/p/DHZ-nxgoWeVxLwgivpad-w
   // https://better-call.dev/delphinet/KT1EJGjahTifrVz8zWjJ6C4J2JBzvbZnYot4/storage
 
-  let tests: {
-    id: string;
-    name: string;
-    description: string;
-    run: any;
-    showExecutionTime: boolean;
-  }[] = [];
+  let tests: TestSettings[] = [];
   let Tezos: TezosToolkit;
   let wallet: BeaconWallet;
   let userAddress: string;
   const contractAddress = "KT1EJGjahTifrVz8zWjJ6C4J2JBzvbZnYot4";
   let contract: ContractAbstraction<Wallet>;
-  let opHash: string = "";
   let defaultMatrixNode = "matrix.papers.tech";
 
   const initBeacon = async () => {
@@ -84,6 +78,7 @@
     });
     Tezos.setWalletProvider(wallet);
     userAddress = await wallet.getPKH();
+    tests = initializeTests(Tezos, contract, wallet);
   };
 
   const disconnectWallet = () => {
@@ -98,7 +93,6 @@
     Tezos = new TezosToolkit("https://testnet-tezos.giganode.io");
     // instantiates contract
     contract = await Tezos.wallet.at(contractAddress);
-    tests = initializeTests(Tezos, contract);
   });
 
   onDestroy(async () => {
