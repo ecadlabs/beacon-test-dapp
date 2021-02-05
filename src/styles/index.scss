@@ -49,6 +49,7 @@ $dark-ratio: 15;
   padding: 15px 20px;
   margin: 20px 10px;
   transition: background-color 1s linear;
+  transition: margin-left 0.2s linear;
 
   &.connect {
     padding: 50px 80px;
@@ -96,6 +97,10 @@ $dark-ratio: 15;
 
   &.test {
     width: 30%;
+
+    &:hover {
+      margin-left: 35px;
+    }
   }
 
   &.success {
