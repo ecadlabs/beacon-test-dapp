@@ -4,7 +4,11 @@
   import { expoInOut } from "svelte/easing";
   import { TezosToolkit, ContractAbstraction, Wallet } from "@taquito/taquito";
   import { BeaconWallet } from "@taquito/beacon-wallet";
-  import { NetworkType } from "@airgap/beacon-sdk";
+  import {
+    NetworkType,
+    BeaconEvent,
+    defaultEventCallbacks
+  } from "@airgap/beacon-sdk";
   import Box from "./Box.svelte";
   import initializeTests from "./tests";
   import { TestSettings } from "./types";
@@ -25,51 +29,14 @@
       name: "Beacon Test Dapp",
       matrixNodes: [defaultMatrixNode] as any,
       preferredNetwork: NetworkType.DELPHINET,
+      disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
       eventHandlers: {
-        ACTIVE_TRANSPORT_SET: {
-          handler: async data => {
-            // console.log("ACTIVE_TRANSPORT_SET:", data);
-          }
+        // To keep the pairing alert, we have to add the following default event handlers back
+        [BeaconEvent.PAIR_INIT]: {
+          handler: defaultEventCallbacks.PAIR_INIT
         },
-        ACTIVE_ACCOUNT_SET: {
-          handler: async data => {
-            // console.log("ACTIVE_ACCOUNT_SET:", data);
-          }
-        },
-        PAIR_SUCCESS: {
-          handler: async data => {
-            // console.log("PAIR_SUCCESS:", data);
-          }
-        },
-        PERMISSION_REQUEST_SENT: {
-          handler: async data => {
-            // console.log("permission request success:", data);
-          }
-        },
-        PERMISSION_REQUEST_SUCCESS: {
-          handler: async data => {
-            // console.log("PERMISSION_REQUEST_SUCCESS:", data);
-          }
-        },
-        OPERATION_REQUEST_SENT: {
-          handler: async data => {
-            // console.log("PERMISSION_REQUEST_SUCCESS:", data);
-          }
-        },
-        OPERATION_REQUEST_SUCCESS: {
-          handler: async data => {
-            // console.log("OPERATION_REQUEST_SUCCESS:", data);
-          }
-        },
-        OPERATION_REQUEST_ERROR: {
-          handler: async data => {
-            // console.log("BROADCAST_REQUEST_ERROR:", data);
-          }
-        },
-        BROADCAST_REQUEST_ERROR: {
-          handler: async data => {
-            // console.log("BROADCAST_REQUEST_ERROR:", data);
-          }
+        [BeaconEvent.PAIR_SUCCESS]: {
+          handler: defaultEventCallbacks.PAIR_SUCCESS
         }
       }
     });
