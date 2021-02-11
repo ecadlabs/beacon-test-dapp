@@ -42,8 +42,8 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
-    "@taquito/beacon-wallet": "^8.0.1-RC.1",
-    "@taquito/taquito": "^8.0.1-RC.1",
+    "@taquito/beacon-wallet": "^8.0.1-RC.2",
+    "@taquito/taquito": "^8.0.1-RC.2",
     "serve": "^11.3.2"
   },
   "browserslist": [
