@@ -13,14 +13,14 @@
   import initializeTests from "./tests";
   import { TestSettings } from "./types";
 
-  // https://ide.ligolang.org/p/DHZ-nxgoWeVxLwgivpad-w
+  // https://ide.ligolang.org/p/sUGBs5AX6XEhtidBe4gaBQ
   // https://better-call.dev/delphinet/KT1EJGjahTifrVz8zWjJ6C4J2JBzvbZnYot4/storage
 
   let tests: TestSettings[] = [];
   let Tezos: TezosToolkit;
   let wallet: BeaconWallet;
   let userAddress: string;
-  const contractAddress = "KT1EJGjahTifrVz8zWjJ6C4J2JBzvbZnYot4";
+  const contractAddress = "KT1FU9mCBABptYMCKRXzwbkEi1oey3z3TQwA";
   let contract: ContractAbstraction<Wallet>;
   let defaultMatrixNode = "matrix.papers.tech";
 
@@ -68,28 +68,40 @@
 </script>
 
 <style lang="scss">
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 120px;
+    position: fixed;
+    width: 100%;
+    background-color: white;
+    z-index: 1000;
+
+    .title {
+      font-size: 2rem;
+      margin-left: 20px;
+    }
+  }
+
   main {
     display: grid;
     height: 100%;
-  }
-
-  .title {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    font-size: 2rem;
+    z-index: 10;
   }
 
   .testboxes {
-    width: 100%;
-    max-height: 80%;
-    padding: 0px 30px;
+    width: calc(100% - 60px);
+    padding: 30px;
     overflow: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
   }
 </style>
 
-<main style={userAddress ? "place-items:center start;" : "place-items:center"}>
-  {#if userAddress}
+{#if userAddress}
+  <header>
     <div class="title">Beacon Test Dapp</div>
     <div
       class="box address"
@@ -107,6 +119,14 @@
         <button class="blue" on:click={disconnectWallet}>Disconnect</button>
       </div>
     </div>
+  </header>
+{/if}
+<main
+  style={userAddress
+    ? "place-items:center start;padding-top:120px;"
+    : "place-items:center"}
+>
+  {#if userAddress}
     <div class="testboxes">
       {#each tests as test, index}
         <Box {test} {index} />

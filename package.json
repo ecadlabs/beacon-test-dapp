@@ -5,7 +5,7 @@
     "dev": "webpack-dev-server --content-base public --hot",
     "start": "serve public -l 8080",
     "validate": "svelte-check",
-    "update-taquito": "ncu -u --target newest --filter '/^@taquito.*$/' && npm i"
+    "update-taquito": "ncu -u --target newest --filter '/^@taquito.*$/' && npm i && git add . && git commit -m \"Updated Taquito version\" && git push"
   },
   "devDependencies": {
     "@babel/core": "^7.11.5",
@@ -42,8 +42,8 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
-    "@taquito/beacon-wallet": "^8.0.1-RC.2",
-    "@taquito/taquito": "^8.0.1-RC.2",
+    "@taquito/beacon-wallet": "^8.0.1-beta.1",
+    "@taquito/taquito": "^8.0.1-beta.1",
     "serve": "^11.3.2"
   },
   "browserslist": [

@@ -96,10 +96,13 @@ $dark-ratio: 15;
   }
 
   &.test {
-    width: 30%;
+    width: 80%;
+    height: 80%;
+    justify-self: center;
+    align-self: center;
 
     &:hover {
-      margin-left: 35px;
+      -webkit-animation: scale 0.5s ease-out forwards;
     }
 
     input[type="text"] {
@@ -118,6 +121,15 @@ $dark-ratio: 15;
 
   &.error {
     background-color: rgba(254, 226, 226, 1);
+  }
+}
+
+@-webkit-keyframes scale {
+  0% {
+    -webkit-transform: scale(1);
+  }
+  100% {
+    -webkit-transform: scale(1.1);
   }
 }
 
