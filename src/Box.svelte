@@ -54,7 +54,7 @@
     success !== undefined ? (success ? "success" : "error") : ""
   }`}
   id={`test-${test.id}`}
-  in:fly={{ x: -1000, duration: 1000, delay: +index * 400 }}
+  in:fly={{ x: -1000, duration: 1000, delay: +index * 200 }}
 >
   <h3>Test {index + 1}: <br /> {test.name}</h3>
   <p id="test-description">{test.description}</p>

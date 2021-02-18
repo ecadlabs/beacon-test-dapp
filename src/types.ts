@@ -1,3 +1,9 @@
+export interface TestResult {
+  success: boolean;
+  opHash: string;
+  output?: string;
+}
+
 export interface TestSettings {
   id: string;
   name: string;
@@ -5,10 +11,4 @@ export interface TestSettings {
   run: any;
   showExecutionTime: boolean;
   inputRequired: boolean;
-}
-
-export interface TestResult {
-  success: boolean;
-  opHash: string;
-  output?: string;
 }

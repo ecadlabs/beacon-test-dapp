@@ -61,10 +61,80 @@ const callFail = async (
     const op = await contract.methods.fail([["unit"]]).send();
     opHash = op.opHash;
     await op.confirmation();
-    return { success: true, opHash };
+    return { success: false, opHash: "" };
   } catch (error) {
     console.log(error);
+    if (
+      error.hasOwnProperty("data") &&
+      Array.isArray(error.data) &&
+      error.data.length === 2 &&
+      error.data[1].hasOwnProperty("with") &&
+      error.data[1].with.hasOwnProperty("string") &&
+      error.data[1].with.string === "Fail entrypoint"
+    ) {
+      return { success: true, opHash };
+    } else {
+      return { success: false, opHash: "" };
+    }
+  }
+};
+
+const callFaiWithInt = async (
+  contract: ContractAbstraction<Wallet>
+): Promise<TestResult> => {
+  let opHash = "";
+  try {
+    const op = await contract.methods.fail_with_int([["unit"]]).send();
+    opHash = op.opHash;
+    await op.confirmation();
     return { success: false, opHash: "" };
+  } catch (error) {
+    console.log(error);
+    if (
+      error.hasOwnProperty("data") &&
+      Array.isArray(error.data) &&
+      error.data.length === 2 &&
+      error.data[1].hasOwnProperty("with") &&
+      error.data[1].with.hasOwnProperty("int") &&
+      error.data[1].with.int == 5
+    ) {
+      return { success: true, opHash };
+    } else {
+      return { success: false, opHash: "" };
+    }
+  }
+};
+
+const callFaiWithPair = async (
+  contract: ContractAbstraction<Wallet>
+): Promise<TestResult> => {
+  let opHash = "";
+  try {
+    const op = await contract.methods.fail_with_pair([["unit"]]).send();
+    opHash = op.opHash;
+    await op.confirmation();
+    return { success: false, opHash: "" };
+  } catch (error) {
+    console.log(error);
+    if (
+      error.hasOwnProperty("data") &&
+      Array.isArray(error.data) &&
+      error.data.length === 2 &&
+      error.data[1].hasOwnProperty("with") &&
+      error.data[1].with.hasOwnProperty("prim") &&
+      error.data[1].with.prim === "Pair" &&
+      error.data[1].with.hasOwnProperty("args") &&
+      Array.isArray(error.data[1].with.args) &&
+      error.data[1].with.args.length === 2 &&
+      error.data[1].with.args[0].hasOwnProperty("int") &&
+      error.data[1].with.args[0].int == 6 &&
+      error.data[1].with.args[1].hasOwnProperty("string") &&
+      error.data[1].with.args[1].string === "taquito"
+    ) {
+      return { success: true, opHash };
+    } else {
+      return { success: false, opHash: "" };
+    }
   }
 };
 
@@ -159,6 +229,22 @@ export default (
     description:
       'This test calls a contract entrypoint that fails with the message "Fail entrypoint"',
     run: () => callFail(contract),
+    showExecutionTime: false,
+    inputRequired: false
+  },
+  {
+    id: "contract-call-fail-with-int",
+    name: "Contract call that fails with int",
+    description: "This test calls a contract entrypoint that fails with an int",
+    run: () => callFaiWithInt(contract),
+    showExecutionTime: false,
+    inputRequired: false
+  },
+  {
+    id: "contract-call-fail-with-pair",
+    name: "Contract call that fails with (pair int string)",
+    description: "This test calls a contract entrypoint that fails with a pair",
+    run: () => callFaiWithPair(contract),
     showExecutionTime: false,
     inputRequired: false
   },

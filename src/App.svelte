@@ -14,15 +14,16 @@
   import { TestSettings } from "./types";
 
   // https://ide.ligolang.org/p/sUGBs5AX6XEhtidBe4gaBQ
-  // https://better-call.dev/delphinet/KT1EJGjahTifrVz8zWjJ6C4J2JBzvbZnYot4/storage
+  // https://better-call.dev/delphinet/KT1FU9mCBABptYMCKRXzwbkEi1oey3z3TQwA/storage
 
   let tests: TestSettings[] = [];
   let Tezos: TezosToolkit;
   let wallet: BeaconWallet;
   let userAddress: string;
-  const contractAddress = "KT1FU9mCBABptYMCKRXzwbkEi1oey3z3TQwA";
+  const contractAddress = "KT19wM6rCppyBZCraQKfVz94PjbZxGkssa2N";
   let contract: ContractAbstraction<Wallet>;
   let defaultMatrixNode = "matrix.papers.tech";
+  let rpcUrl = "https://edonet-tezos.giganode.io";
 
   const initBeacon = async () => {
     wallet = new BeaconWallet({
@@ -41,7 +42,7 @@
       }
     });
     await wallet.requestPermissions({
-      network: { type: NetworkType.DELPHINET }
+      network: { type: NetworkType.CUSTOM, rpcUrl }
     });
     Tezos.setWalletProvider(wallet);
     userAddress = await wallet.getPKH();
@@ -57,7 +58,7 @@
   };
 
   onMount(async () => {
-    Tezos = new TezosToolkit("https://testnet-tezos.giganode.io");
+    Tezos = new TezosToolkit(rpcUrl);
     // instantiates contract
     contract = await Tezos.wallet.at(contractAddress);
   });
@@ -108,7 +109,7 @@
       in:fly={{
         x: -2000,
         duration: 2000,
-        delay: (tests.length + 1) * 400,
+        delay: (tests.length + 1) * 200,
         easing: expoInOut
       }}
     >
