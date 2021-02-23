@@ -2,7 +2,8 @@ import {
   TezosToolkit,
   ContractAbstraction,
   Wallet,
-  MichelsonMap
+  MichelsonMap,
+  OpKind
 } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { RequestSignPayloadInput } from "@airgap/beacon-sdk";
@@ -158,24 +159,29 @@ const originateSuccess = async (Tezos: TezosToolkit): Promise<TestResult> => {
 const batchApiTest = async (Tezos: TezosToolkit): Promise<TestResult> => {
   let opHash = "";
   try {
-    const op = await Tezos.batch()
-      .withTransfer({
-        to: "tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu",
-        amount: 300000,
-        mutez: true
-      })
-      .withTransfer({
-        to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb",
-        amount: 300000,
-        mutez: true
-      })
-      .withTransfer({
-        to: "tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6",
-        amount: 300000,
-        mutez: true
-      })
+    const op = await Tezos.wallet
+      .batch([
+        {
+          kind: OpKind.TRANSACTION,
+          to: "tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu",
+          amount: 300000,
+          mutez: true
+        },
+        {
+          kind: OpKind.TRANSACTION,
+          to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb",
+          amount: 300000,
+          mutez: true
+        },
+        {
+          kind: OpKind.TRANSACTION,
+          to: "tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6",
+          amount: 300000,
+          mutez: true
+        }
+      ])
       .send();
-    opHash = op.hash;
+    opHash = op.opHash;
     await op.confirmation();
     return { success: true, opHash };
   } catch (error) {
