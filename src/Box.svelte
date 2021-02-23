@@ -70,8 +70,8 @@
     <p>
       <a
         href={test.id === "send-tez"
-          ? `https://delphinet.tzkt.io/${opHash}`
-          : `https://better-call.dev/delphinet/opg/${opHash}/contents`}
+          ? `https://edonet.tzkt.io/${opHash}`
+          : `https://better-call.dev/edonet/opg/${opHash}/contents`}
         target="_blank"
         rel="noopener noreferrer nofollow">View operation</a
       >
