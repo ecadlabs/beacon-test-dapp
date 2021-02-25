@@ -23,13 +23,24 @@
   const contractAddress = "KT19wM6rCppyBZCraQKfVz94PjbZxGkssa2N";
   let contract: ContractAbstraction<Wallet>;
   let defaultMatrixNode = "matrix.papers.tech";
-  let rpcUrl = "https://edonet-tezos.giganode.io";
+  let connectedNetwork: "testnet" | "mainnet" = "testnet";
+  let rpcUrl = {
+    testnet: "https://api.tez.ie/rpc/edonet", //"https://edonet-tezos.giganode.io",
+    mainnet: "https://api.tez.ie/rpc/mainnet" //"https://mainnet-tezos.giganode.io"
+  };
 
   const initBeacon = async () => {
+    Tezos = new TezosToolkit(rpcUrl[connectedNetwork]);
+    // instantiates contract
+    contract = await Tezos.wallet.at(contractAddress);
+    // instantiates the wallet
     wallet = new BeaconWallet({
       name: "Beacon Test Dapp",
       matrixNodes: [defaultMatrixNode] as any,
-      preferredNetwork: NetworkType.DELPHINET,
+      preferredNetwork:
+        connectedNetwork === "testnet"
+          ? NetworkType.CUSTOM
+          : NetworkType.MAINNET,
       disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
       eventHandlers: {
         // To keep the pairing alert, we have to add the following default event handlers back
@@ -42,7 +53,13 @@
       }
     });
     await wallet.requestPermissions({
-      network: { type: NetworkType.CUSTOM, rpcUrl }
+      network: {
+        type:
+          connectedNetwork === "testnet"
+            ? NetworkType.CUSTOM
+            : NetworkType.MAINNET,
+        rpcUrl: rpcUrl[connectedNetwork]
+      }
     });
     Tezos.setWalletProvider(wallet);
     userAddress = await wallet.getPKH();
@@ -57,14 +74,8 @@
     }
   };
 
-  onMount(async () => {
-    Tezos = new TezosToolkit(rpcUrl);
-    // instantiates contract
-    contract = await Tezos.wallet.at(contractAddress);
-  });
-
   onDestroy(async () => {
-    await wallet.client.destroy();
+    disconnectWallet();
   });
 </script>
 
@@ -75,6 +86,8 @@
     align-items: center;
     height: 120px;
     position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     background-color: white;
     z-index: 1000;
@@ -124,13 +137,13 @@
 {/if}
 <main
   style={userAddress
-    ? "place-items:center start;padding-top:120px;"
+    ? "place-items:center start;padding-top:120px;margin-top:120px;"
     : "place-items:center"}
 >
   {#if userAddress}
     <div class="testboxes">
       {#each tests as test, index}
-        <Box {test} {index} />
+        <Box {test} {index} network={connectedNetwork} />
       {/each}
     </div>
   {:else}
@@ -167,6 +180,34 @@
             checked={defaultMatrixNode === "matrix.tez.ie"}
           />
           Taquito Matrix Node
+        </label>
+      </div>
+      <div>
+        <label
+          for="select-testnet"
+          class:selected={connectedNetwork === "testnet"}
+        >
+          <input
+            type="radio"
+            id="select-testnet"
+            value="testnet"
+            bind:group={connectedNetwork}
+            checked={connectedNetwork === "testnet"}
+          />
+          Testnet
+        </label>
+        <label
+          for="select-mainnet"
+          class:selected={connectedNetwork === "mainnet"}
+        >
+          <input
+            type="radio"
+            id="select-mainnet"
+            value="mainnet"
+            bind:group={connectedNetwork}
+            checked={connectedNetwork === "mainnet"}
+          />
+          Mainnet
         </label>
       </div>
     </div>

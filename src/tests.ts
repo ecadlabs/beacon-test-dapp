@@ -190,6 +190,36 @@ const batchApiTest = async (Tezos: TezosToolkit): Promise<TestResult> => {
   }
 };
 
+const batchApiContractCallsTest = async (
+  Tezos: TezosToolkit,
+  contract: ContractAbstraction<Wallet>
+): Promise<TestResult> => {
+  let opHash = "";
+  try {
+    const storage: any = await contract.storage();
+    const op = await Tezos.wallet
+      .batch()
+      .withContractCall(contract.methods.simple_param(5))
+      .withContractCall(contract.methods.simple_param(6))
+      .withContractCall(contract.methods.simple_param(7))
+      .send();
+    opHash = op.opHash;
+    await op.confirmation();
+    const newStorage: any = await contract.storage();
+    if (
+      newStorage.simple.toNumber() ===
+      storage.simple.toNumber() + 5 + 6 + 7
+    ) {
+      return { success: true, opHash };
+    } else {
+      throw `Unexpected number in storage, expected ${storage.simple.toNumber()}, got ${newStorage.simple.toNumber()}`;
+    }
+  } catch (error) {
+    console.log(error);
+    return { success: false, opHash: "" };
+  }
+};
+
 const signPayload = async (
   input: RequestSignPayloadInput,
   wallet: BeaconWallet
@@ -267,6 +297,14 @@ export default (
     name: "Use the Batch API with a wallet",
     description: "This test sends 0.3 tez to 3 different addresses",
     run: () => batchApiTest(Tezos),
+    showExecutionTime: false,
+    inputRequired: false
+  },
+  {
+    id: "batch-api-contract-call",
+    name: "Use the Batch API for contract calls",
+    description: "This test calls the same entrypoint 3 times in 1 transaction",
+    run: () => batchApiContractCallsTest(Tezos, contract),
     showExecutionTime: false,
     inputRequired: false
   },

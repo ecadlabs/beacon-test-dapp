@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fly } from "svelte/transition";
 
-  export let test, index;
+  export let test, index, network;
 
   let executionTime = 0;
   let loading = false;
@@ -70,8 +70,10 @@
     <p>
       <a
         href={test.id === "send-tez"
-          ? `https://edonet.tzkt.io/${opHash}`
-          : `https://better-call.dev/edonet/opg/${opHash}/contents`}
+          ? `https://${network === "testnet" ? "edonet." : ""}tzkt.io/${opHash}`
+          : `https://better-call.dev/${
+              network === "testnet" ? "edonet/" : ""
+            }opg/${opHash}/contents`}
         target="_blank"
         rel="noopener noreferrer nofollow">View operation</a
       >
