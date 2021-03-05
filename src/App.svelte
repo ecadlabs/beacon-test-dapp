@@ -11,7 +11,7 @@
   } from "@airgap/beacon-sdk";
   import Box from "./Box.svelte";
   import initializeTests from "./tests";
-  import { TestSettings } from "./types";
+  import type { TestSettings } from "./types";
 
   // https://ide.ligolang.org/p/sUGBs5AX6XEhtidBe4gaBQ
   // https://better-call.dev/delphinet/KT1FU9mCBABptYMCKRXzwbkEi1oey3z3TQwA/storage
@@ -27,6 +27,10 @@
   let rpcUrl = {
     testnet: "https://api.tez.ie/rpc/edonet", //"https://edonet-tezos.giganode.io",
     mainnet: "https://api.tez.ie/rpc/mainnet" //"https://mainnet-tezos.giganode.io"
+  };
+  let taquitoVersion = {
+    name: "8.0.6-beta-RC.0",
+    link: "https://github.com/ecadlabs/taquito/tree/8.0.6-beta-RC.0"
   };
 
   const initBeacon = async () => {
@@ -102,6 +106,7 @@
     display: grid;
     height: 100%;
     z-index: 10;
+    position: relative;
   }
 
   .testboxes {
@@ -213,3 +218,17 @@
     </div>
   {/if}
 </main>
+<div id="taquito-version">
+  Taquito version:
+  {#if taquitoVersion.link}
+    <a
+      href={taquitoVersion.link}
+      target="_blank"
+      rel="noopener noreferrer nofollow"
+    >
+      {taquitoVersion.name}
+    </a>
+  {:else}
+    <span>{taquitoVersion.name}</span>
+  {/if}
+</div>
