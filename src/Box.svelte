@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import { fly } from "svelte/transition";
+  import type { TestResult } from "./types";
 
   export let test, index, network;
 
@@ -8,6 +10,7 @@
   let success: boolean | undefined;
   let opHash = "";
   let input = "";
+  const dispatch = createEventDispatcher();
 
   const runTest = async () => {
     loading = true;
@@ -15,9 +18,9 @@
     opHash = "";
     const t1 = performance.now();
     try {
-      let result;
+      let result: TestResult;
       if (test.id === "sign-payload") {
-        result = await test.run({ payload: input });
+        result = await test.run(input);
       } else {
         result = await test.run();
       }
@@ -26,6 +29,18 @@
         executionTime = t2 - t1;
         success = true;
         opHash = result.opHash;
+        // special output for sign-payload
+        if (test.id === "sign-payload") {
+          dispatch("open-modal", {
+            title: "Signing Result",
+            body: [
+              result.sigDetails.input,
+              result.sigDetails.formattedInput,
+              result.sigDetails.bytes,
+              result.output
+            ]
+          });
+        }
       } else {
         throw "Error";
       }

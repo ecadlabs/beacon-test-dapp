@@ -6,7 +6,8 @@ import {
   OpKind
 } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { RequestSignPayloadInput } from "@airgap/beacon-sdk";
+import { char2Bytes } from "@taquito/utils";
+import { RequestSignPayloadInput, SigningType } from "@airgap/beacon-sdk";
 import { TestSettings, TestResult } from "./types";
 
 const sendTez = async (Tezos: TezosToolkit): Promise<TestResult> => {
@@ -221,12 +222,28 @@ const batchApiContractCallsTest = async (
 };
 
 const signPayload = async (
-  input: RequestSignPayloadInput,
+  input: string,
   wallet: BeaconWallet
 ): Promise<TestResult> => {
-  const signedPayload = await wallet.client.requestSignPayload(input);
-
-  return { success: true, opHash: "", output: signedPayload.signature };
+  const userAddress = await wallet.getPKH();
+  const formattedInput = `Tezos Signed Message: beacon-test-dapp.netlify.app/ ${new Date().toISOString()} ${input}`;
+  const bytes = "05" + char2Bytes(formattedInput);
+  const payload: RequestSignPayloadInput = {
+    signingType: SigningType.MICHELINE,
+    payload: bytes,
+    sourceAddress: userAddress
+  };
+  try {
+    const signedPayload = await wallet.client.requestSignPayload(payload);
+    return {
+      success: true,
+      opHash: "",
+      output: signedPayload.signature,
+      sigDetails: { input, formattedInput, bytes }
+    };
+  } catch (error) {
+    return { success: false, opHash: "", output: JSON.stringify(error) };
+  }
 };
 
 export default (

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   import { fly } from "svelte/transition";
   import { expoInOut } from "svelte/easing";
   import { TezosToolkit, ContractAbstraction, Wallet } from "@taquito/taquito";
@@ -12,6 +12,7 @@
   import Box from "./Box.svelte";
   import initializeTests from "./tests";
   import type { TestSettings } from "./types";
+  import Modal from "./Modal.svelte";
 
   // https://ide.ligolang.org/p/sUGBs5AX6XEhtidBe4gaBQ
   // https://better-call.dev/delphinet/KT1FU9mCBABptYMCKRXzwbkEi1oey3z3TQwA/storage
@@ -32,8 +33,35 @@
     name: "8.0.6-beta-RC.0",
     link: "https://github.com/ecadlabs/taquito/tree/8.0.6-beta-RC.0"
   };
+  let initialLoading = true;
+  let openModal = false;
+  let modalData: { title: string; body: string[] } = {
+    title: "",
+    body: []
+  };
 
   const initBeacon = async () => {
+    await wallet.requestPermissions({
+      network: {
+        type:
+          connectedNetwork === "testnet"
+            ? NetworkType.CUSTOM
+            : NetworkType.MAINNET,
+        rpcUrl: rpcUrl[connectedNetwork]
+      }
+    });
+    userAddress = await wallet.getPKH();
+  };
+
+  const disconnectWallet = () => {
+    if (wallet) {
+      wallet.client.destroy();
+      wallet = undefined;
+      userAddress = undefined;
+    }
+  };
+
+  onMount(async () => {
     Tezos = new TezosToolkit(rpcUrl[connectedNetwork]);
     // instantiates contract
     contract = await Tezos.wallet.at(contractAddress);
@@ -56,30 +84,17 @@
         }
       }
     });
-    await wallet.requestPermissions({
-      network: {
-        type:
-          connectedNetwork === "testnet"
-            ? NetworkType.CUSTOM
-            : NetworkType.MAINNET,
-        rpcUrl: rpcUrl[connectedNetwork]
-      }
-    });
     Tezos.setWalletProvider(wallet);
-    userAddress = await wallet.getPKH();
-    tests = initializeTests(Tezos, contract, wallet);
-  };
-
-  const disconnectWallet = () => {
-    if (wallet) {
-      wallet.client.destroy();
-      wallet = undefined;
-      userAddress = undefined;
+    // checks if active account
+    const activeAccount = await wallet.client.getActiveAccount();
+    if (activeAccount) {
+      userAddress = await wallet.getPKH();
     }
-  };
+    tests = initializeTests(Tezos, contract, wallet);
 
-  onDestroy(async () => {
-    disconnectWallet();
+    //console.log("Active account:", activeAccount, userAddress);
+
+    initialLoading = false;
   });
 </script>
 
@@ -94,7 +109,7 @@
     left: 0;
     width: 100%;
     background-color: white;
-    z-index: 1000;
+    z-index: 800;
 
     .title {
       font-size: 2rem;
@@ -145,77 +160,90 @@
     ? "place-items:center start;padding-top:120px;margin-top:120px;"
     : "place-items:center"}
 >
-  {#if userAddress}
-    <div class="testboxes">
-      {#each tests as test, index}
-        <Box {test} {index} network={connectedNetwork} />
-      {/each}
-    </div>
+  {#if initialLoading}
+    <div class="box connect">Loading</div>
   {:else}
-    <div class="box connect">
-      <div>Welcome to the <br /> Beacon Test Dapp</div>
-      <br />
-      <button class="blue" on:click={initBeacon}>
-        <i class="fas fa-wallet" />
-        Connect your wallet
-      </button>
-      <div>
-        <label
-          for="default-matrix-node"
-          class:selected={defaultMatrixNode === "matrix.papers.tech"}
-        >
-          <input
-            type="radio"
-            id="default-matrix-node"
-            value="matrix.papers.tech"
-            bind:group={defaultMatrixNode}
-            checked={defaultMatrixNode === "matrix.papers.tech"}
+    <!--User is logged in-->
+    {#if userAddress}
+      <div class="testboxes">
+        {#each tests as test, index}
+          <Box
+            {test}
+            {index}
+            network={connectedNetwork}
+            on:open-modal={e => {
+              modalData = { ...e.detail };
+              openModal = true;
+            }}
           />
-          Default Matrix Node
-        </label>
-        <label
-          for="taquito-matrix-node"
-          class:selected={defaultMatrixNode === "matrix.tez.ie"}
-        >
-          <input
-            type="radio"
-            id="taquito-matrix-node"
-            value="matrix.tez.ie"
-            bind:group={defaultMatrixNode}
-            checked={defaultMatrixNode === "matrix.tez.ie"}
-          />
-          Taquito Matrix Node
-        </label>
+        {/each}
       </div>
-      <div>
-        <label
-          for="select-testnet"
-          class:selected={connectedNetwork === "testnet"}
-        >
-          <input
-            type="radio"
-            id="select-testnet"
-            value="testnet"
-            bind:group={connectedNetwork}
-            checked={connectedNetwork === "testnet"}
-          />
-          Testnet
-        </label>
-        <label
-          for="select-mainnet"
-          class:selected={connectedNetwork === "mainnet"}
-        >
-          <input
-            type="radio"
-            id="select-mainnet"
-            value="mainnet"
-            bind:group={connectedNetwork}
-            checked={connectedNetwork === "mainnet"}
-          />
-          Mainnet
-        </label>
+    {:else}
+      <div class="box connect">
+        <div>Welcome to the <br /> Beacon Test Dapp</div>
+        <br />
+        <button class="blue" on:click={initBeacon}>
+          <i class="fas fa-wallet" />
+          Connect your wallet
+        </button>
+        <div>
+          <label
+            for="default-matrix-node"
+            class:selected={defaultMatrixNode === "matrix.papers.tech"}
+          >
+            <input
+              type="radio"
+              id="default-matrix-node"
+              value="matrix.papers.tech"
+              bind:group={defaultMatrixNode}
+              checked={defaultMatrixNode === "matrix.papers.tech"}
+            />
+            Default Matrix Node
+          </label>
+          <label
+            for="taquito-matrix-node"
+            class:selected={defaultMatrixNode === "matrix.tez.ie"}
+          >
+            <input
+              type="radio"
+              id="taquito-matrix-node"
+              value="matrix.tez.ie"
+              bind:group={defaultMatrixNode}
+              checked={defaultMatrixNode === "matrix.tez.ie"}
+            />
+            Taquito Matrix Node
+          </label>
+        </div>
+        <div>
+          <label
+            for="select-testnet"
+            class:selected={connectedNetwork === "testnet"}
+          >
+            <input
+              type="radio"
+              id="select-testnet"
+              value="testnet"
+              bind:group={connectedNetwork}
+              checked={connectedNetwork === "testnet"}
+            />
+            Testnet
+          </label>
+          <label
+            for="select-mainnet"
+            class:selected={connectedNetwork === "mainnet"}
+          >
+            <input
+              type="radio"
+              id="select-mainnet"
+              value="mainnet"
+              bind:group={connectedNetwork}
+              checked={connectedNetwork === "mainnet"}
+            />
+            Mainnet
+          </label>
+        </div>
       </div>
-    </div>
+    {/if}
   {/if}
 </main>
 <div id="taquito-version">
@@ -232,3 +260,24 @@
     <span>{taquitoVersion.name}</span>
   {/if}
 </div>
+{#if openModal}
+  <Modal close={() => (openModal = false)}>
+    <div slot="title">{modalData.title}</div>
+    <div slot="body">
+      {#each modalData.body as item, index}
+        <div>
+          {#if index === 0}
+            Input
+          {:else if index === 1}
+            Formatted input
+          {:else if index === 2}
+            Bytes
+          {:else if index === 3}
+            Signature
+          {/if}
+        </div>
+        <div>{item}</div>
+      {/each}
+    </div>
+  </Modal>
+{/if}
