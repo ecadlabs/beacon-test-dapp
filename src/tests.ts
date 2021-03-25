@@ -246,6 +246,42 @@ const signPayload = async (
   }
 };
 
+const signPayloadAndSend = async (
+  input: string,
+  wallet: BeaconWallet,
+  contract: ContractAbstraction<Wallet>
+): Promise<TestResult> => {
+  if (!input) throw "No input provided";
+
+  const userAddress = await wallet.getPKH();
+  const formattedInput = `Tezos Signed Message: beacon-test-dapp.netlify.app/ ${new Date().toISOString()} ${input}`;
+  const bytes = "05" + char2Bytes(formattedInput);
+  const payload: RequestSignPayloadInput = {
+    signingType: SigningType.MICHELINE,
+    payload: bytes,
+    sourceAddress: userAddress
+  };
+  try {
+    const signedPayload = await wallet.client.requestSignPayload(payload);
+    // gets user's public key
+    const activeAccount = await wallet.client.getActiveAccount();
+    const publicKey = activeAccount.publicKey;
+    // sends transaction to contract
+    const op = await contract.methods
+      .check_signature(publicKey, signedPayload.signature, bytes)
+      .send();
+    await op.confirmation();
+    return {
+      success: true,
+      opHash: op.opHash,
+      output: signedPayload.signature,
+      sigDetails: { input, formattedInput, bytes }
+    };
+  } catch (error) {
+    return { success: false, opHash: "", output: JSON.stringify(error) };
+  }
+};
+
 export default (
   Tezos: TezosToolkit,
   contract: ContractAbstraction<Wallet>,
@@ -327,9 +363,18 @@ export default (
   },
   {
     id: "sign-payload",
-    name: "Signing of provided payload",
+    name: "Sign the provided payload",
     description: "This test signs the payload provided by the user",
     run: input => signPayload(input, wallet),
+    showExecutionTime: false,
+    inputRequired: true
+  },
+  {
+    id: "sign-payload-and-send",
+    name: "Sign and send the signature to the contract",
+    description:
+      "This test signs the provided payload and sends it to the contract to check it",
+    run: input => signPayloadAndSend(input, wallet, contract),
     showExecutionTime: false,
     inputRequired: true
   }

@@ -14,14 +14,14 @@
   import type { TestSettings } from "./types";
   import Modal from "./Modal.svelte";
 
-  // https://ide.ligolang.org/p/sUGBs5AX6XEhtidBe4gaBQ
-  // https://better-call.dev/delphinet/KT1FU9mCBABptYMCKRXzwbkEi1oey3z3TQwA/storage
+  // https://ide.ligolang.org/p/LdCqNZ-G6rcKYkrbtmmD2A
+  // https://better-call.dev/edo2net/KT1AZaJHXhFb65CNteUWQ8rQqsAuQvYfGEzT/operations
 
   let tests: TestSettings[] = [];
   let Tezos: TezosToolkit;
   let wallet: BeaconWallet;
   let userAddress: string;
-  const contractAddress = "KT19wM6rCppyBZCraQKfVz94PjbZxGkssa2N";
+  const contractAddress = "KT1AZaJHXhFb65CNteUWQ8rQqsAuQvYfGEzT";
   let contract: ContractAbstraction<Wallet>;
   let defaultMatrixNode = "matrix.papers.tech";
   let connectedNetwork: "testnet" | "mainnet" = "testnet";
@@ -30,7 +30,7 @@
     mainnet: "https://api.tez.ie/rpc/mainnet" //"https://mainnet-tezos.giganode.io"
   };
   let taquitoVersion = {
-    name: "8.0.6-beta-RC.0",
+    name: "8.1.0-beta-RC.0",
     link: "https://github.com/ecadlabs/taquito/tree/8.0.6-beta-RC.0"
   };
   let initialLoading = true;

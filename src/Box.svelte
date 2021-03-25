@@ -19,7 +19,7 @@
     const t1 = performance.now();
     try {
       let result: TestResult;
-      if (test.id === "sign-payload") {
+      if (test.id === "sign-payload" || test.id === "sign-payload-and-send") {
         result = await test.run(input);
       } else {
         result = await test.run();
@@ -30,7 +30,7 @@
         success = true;
         opHash = result.opHash;
         // special output for sign-payload
-        if (test.id === "sign-payload") {
+        if (test.id === "sign-payload" || test.id === "sign-payload-and-send") {
           dispatch("open-modal", {
             title: "Signing Result",
             body: [
