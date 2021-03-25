@@ -41,11 +41,34 @@
   };
 
   const initBeacon = async () => {
+    if (!wallet) {
+      // instantiates the wallet
+      wallet = new BeaconWallet({
+        name: "Beacon Test Dapp",
+        matrixNodes: [defaultMatrixNode] as any,
+        preferredNetwork:
+          connectedNetwork === "testnet"
+            ? NetworkType.EDONET
+            : NetworkType.MAINNET,
+        disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
+        eventHandlers: {
+          // To keep the pairing alert, we have to add the following default event handlers back
+          [BeaconEvent.PAIR_INIT]: {
+            handler: defaultEventCallbacks.PAIR_INIT
+          },
+          [BeaconEvent.PAIR_SUCCESS]: {
+            handler: defaultEventCallbacks.PAIR_SUCCESS
+          }
+        }
+      });
+      Tezos.setWalletProvider(wallet);
+    }
+
     await wallet.requestPermissions({
       network: {
         type:
           connectedNetwork === "testnet"
-            ? NetworkType.CUSTOM
+            ? NetworkType.EDONET
             : NetworkType.MAINNET,
         rpcUrl: rpcUrl[connectedNetwork]
       }
@@ -71,7 +94,7 @@
       matrixNodes: [defaultMatrixNode] as any,
       preferredNetwork:
         connectedNetwork === "testnet"
-          ? NetworkType.CUSTOM
+          ? NetworkType.EDONET
           : NetworkType.MAINNET,
       disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
       eventHandlers: {
