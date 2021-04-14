@@ -198,12 +198,18 @@ const batchApiContractCallsTest = async (
   let opHash = "";
   try {
     const storage: any = await contract.storage();
-    const op = await Tezos.wallet
+    /*const op = await Tezos.wallet
       .batch()
       .withContractCall(contract.methods.simple_param(5))
       .withContractCall(contract.methods.simple_param(6))
       .withContractCall(contract.methods.simple_param(7))
-      .send();
+      .send();*/
+    const batch = Tezos.wallet
+      .batch()
+      .withContractCall(contract.methods.simple_param(5))
+      .withContractCall(contract.methods.simple_param(6))
+      .withContractCall(contract.methods.simple_param(7));
+    const op = await batch.send();
     opHash = op.opHash;
     await op.confirmation();
     const newStorage: any = await contract.storage();

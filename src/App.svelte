@@ -30,8 +30,8 @@
     mainnet: "https://api.tez.ie/rpc/mainnet" //"https://mainnet-tezos.giganode.io"
   };
   let taquitoVersion = {
-    name: "8.1.0-beta-RC.0",
-    link: "https://github.com/ecadlabs/taquito/tree/8.0.6-beta-RC.0"
+    name: "8.1.1",
+    link: "https://github.com/ecadlabs/taquito/tree/8.1.1"
   };
   let initialLoading = true;
   let openModal = false;
