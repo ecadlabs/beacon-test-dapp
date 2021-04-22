@@ -64,8 +64,14 @@ $dark-ratio: 15;
     text-align: center;
 
     button {
-      font-size: 2rem;
-      padding: 20px;
+      &.main {
+        font-size: 2rem;
+        padding: 20px;
+      }
+      &.secondary {
+        font-size: 1rem;
+        padding: 10px;
+      }
     }
 
     label {
@@ -141,13 +147,13 @@ $dark-ratio: 15;
 }
 
 button {
-  padding: 10px;
-  margin: 0px 15px;
   border-radius: 10px;
   cursor: pointer;
   transition: 0.4s;
   font-family: "Montserrat", sans-serif;
   outline: none;
+  padding: 10px;
+  margin: 0px 15px;
 
   &.green {
     background-color: $green;
@@ -166,9 +172,6 @@ button {
   }
 
   &.blue {
-    /*background-color: $blue;
-    border: solid 2px darken($blue, $dark-ratio);
-    color: darken($blue, $dark-ratio * 2);*/
     border: none;
     background: rgba(190, 227, 248, 0.4);
     backdrop-filter: blur(10px);

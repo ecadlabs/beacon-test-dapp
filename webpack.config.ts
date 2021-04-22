@@ -138,7 +138,8 @@ const config: webpack.Configuration & WebpackDevServer.Configuration = {
     stats: "minimal",
     contentBase: "public",
     watchContentBase: true,
-    clientLogLevel: "silent"
+    clientLogLevel: "silent",
+    https: true
   },
   mode: mode === "production" ? "production" : "development",
   plugins: [

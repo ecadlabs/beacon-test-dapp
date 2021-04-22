@@ -3,7 +3,8 @@ import {
   ContractAbstraction,
   Wallet,
   MichelsonMap,
-  OpKind
+  OpKind,
+  ContractProvider
 } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { char2Bytes } from "@taquito/utils";
@@ -26,12 +27,12 @@ const sendTez = async (Tezos: TezosToolkit): Promise<TestResult> => {
 };
 
 const sendInt = async (
-  contract: ContractAbstraction<Wallet>
+  contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>
 ): Promise<TestResult> => {
   let opHash = "";
   try {
     const op = await contract.methods.simple_param(5).send();
-    opHash = op.opHash;
+    opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
     return { success: true, opHash };
   } catch (error) {
@@ -41,12 +42,12 @@ const sendInt = async (
 };
 
 const sendComplexParam = async (
-  contract: ContractAbstraction<Wallet>
+  contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>
 ): Promise<TestResult> => {
   let opHash = "";
   try {
     const op = await contract.methods.complex_param(5, "Taquito").send();
-    opHash = op.opHash;
+    opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
     return { success: true, opHash };
   } catch (error) {
@@ -56,12 +57,12 @@ const sendComplexParam = async (
 };
 
 const callFail = async (
-  contract: ContractAbstraction<Wallet>
+  contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>
 ): Promise<TestResult> => {
   let opHash = "";
   try {
     const op = await contract.methods.fail([["unit"]]).send();
-    opHash = op.opHash;
+    opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
     return { success: false, opHash: "" };
   } catch (error) {
@@ -82,12 +83,12 @@ const callFail = async (
 };
 
 const callFaiWithInt = async (
-  contract: ContractAbstraction<Wallet>
+  contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>
 ): Promise<TestResult> => {
   let opHash = "";
   try {
     const op = await contract.methods.fail_with_int([["unit"]]).send();
-    opHash = op.opHash;
+    opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
     return { success: false, opHash: "" };
   } catch (error) {
@@ -108,12 +109,12 @@ const callFaiWithInt = async (
 };
 
 const callFaiWithPair = async (
-  contract: ContractAbstraction<Wallet>
+  contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>
 ): Promise<TestResult> => {
   let opHash = "";
   try {
     const op = await contract.methods.fail_with_pair([["unit"]]).send();
-    opHash = op.opHash;
+    opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
     return { success: false, opHash: "" };
   } catch (error) {
@@ -193,23 +194,24 @@ const batchApiTest = async (Tezos: TezosToolkit): Promise<TestResult> => {
 
 const batchApiContractCallsTest = async (
   Tezos: TezosToolkit,
-  contract: ContractAbstraction<Wallet>
+  contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>,
+  callToContract
 ): Promise<TestResult> => {
   let opHash = "";
   try {
     const storage: any = await contract.storage();
-    /*const op = await Tezos.wallet
-      .batch()
-      .withContractCall(contract.methods.simple_param(5))
-      .withContractCall(contract.methods.simple_param(6))
-      .withContractCall(contract.methods.simple_param(7))
-      .send();*/
-    const batch = Tezos.wallet
+    /*const batch = Tezos.wallet
       .batch()
       .withContractCall(contract.methods.simple_param(5))
       .withContractCall(contract.methods.simple_param(6))
       .withContractCall(contract.methods.simple_param(7));
-    const op = await batch.send();
+    const op = await batch.send();*/
+    const batch = [
+      { kind: OpKind.TRANSACTION, ...contract.methods.simple_param(5) },
+      { kind: OpKind.TRANSACTION, ...contract.methods.simple_param(6) },
+      { kind: OpKind.TRANSACTION, ...contract.methods.simple_param(7) }
+    ];
+    const op = await callToContract.batch(batch).send();
     opHash = op.opHash;
     await op.confirmation();
     const newStorage: any = await contract.storage();
@@ -255,7 +257,7 @@ const signPayload = async (
 const signPayloadAndSend = async (
   input: string,
   wallet: BeaconWallet,
-  contract: ContractAbstraction<Wallet>
+  contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>
 ): Promise<TestResult> => {
   if (!input) throw "No input provided";
 
@@ -279,7 +281,7 @@ const signPayloadAndSend = async (
     await op.confirmation();
     return {
       success: true,
-      opHash: op.opHash,
+      opHash: op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"],
       output: signedPayload.signature,
       sigDetails: { input, formattedInput, bytes }
     };
@@ -290,8 +292,8 @@ const signPayloadAndSend = async (
 
 export default (
   Tezos: TezosToolkit,
-  contract: ContractAbstraction<Wallet>,
-  wallet: BeaconWallet
+  contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>,
+  wallet: BeaconWallet | undefined
 ): TestSettings[] => [
   {
     id: "send-tez",
@@ -363,7 +365,12 @@ export default (
     id: "batch-api-contract-call",
     name: "Use the Batch API for contract calls",
     description: "This test calls the same entrypoint 3 times in 1 transaction",
-    run: () => batchApiContractCallsTest(Tezos, contract),
+    run: () =>
+      batchApiContractCallsTest(
+        Tezos,
+        contract,
+        wallet ? Tezos.wallet : Tezos.contract
+      ),
     showExecutionTime: false,
     inputRequired: false
   },

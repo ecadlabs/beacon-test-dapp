@@ -2,13 +2,24 @@
   import { onMount } from "svelte";
   import { fly } from "svelte/transition";
   import { expoInOut } from "svelte/easing";
-  import { TezosToolkit, ContractAbstraction, Wallet } from "@taquito/taquito";
+  import {
+    TezosToolkit,
+    ContractAbstraction,
+    Wallet,
+    ContractProvider
+  } from "@taquito/taquito";
   import { BeaconWallet } from "@taquito/beacon-wallet";
   import {
     NetworkType,
     BeaconEvent,
     defaultEventCallbacks
   } from "@airgap/beacon-sdk";
+  import {
+    LedgerSigner,
+    DerivationType,
+    HDPathTemplate
+  } from "@taquito/ledger-signer";
+  import TransportU2F from "@ledgerhq/hw-transport-u2f";
   import Box from "./Box.svelte";
   import initializeTests from "./tests";
   import type { TestSettings } from "./types";
@@ -19,10 +30,12 @@
 
   let tests: TestSettings[] = [];
   let Tezos: TezosToolkit;
-  let wallet: BeaconWallet;
+  let wallet: BeaconWallet | undefined;
   let userAddress: string;
   const contractAddress = "KT1AZaJHXhFb65CNteUWQ8rQqsAuQvYfGEzT";
-  let contract: ContractAbstraction<Wallet>;
+  let contract:
+    | ContractAbstraction<Wallet>
+    | ContractAbstraction<ContractProvider>;
   let defaultMatrixNode = "matrix.papers.tech";
   let connectedNetwork: "testnet" | "mainnet" = "testnet";
   let rpcUrl = {
@@ -74,6 +87,9 @@
       }
     });
     userAddress = await wallet.getPKH();
+    // instantiates contract
+    contract = await Tezos.wallet.at(contractAddress);
+    tests = initializeTests(Tezos, contract, wallet);
   };
 
   const disconnectWallet = () => {
@@ -84,10 +100,27 @@
     }
   };
 
+  const connectNano = async () => {
+    const transport = await TransportU2F.create();
+    const ledgerSigner = new LedgerSigner(
+      transport, //required
+      HDPathTemplate(0), // path optional (equivalent to "44'/1729'/1'/0'")
+      true, // prompt optional
+      DerivationType.ED25519 // derivationType optional
+    );
+    Tezos.setProvider({ signer: ledgerSigner });
+    //Get the public key and the public key hash from the Ledger
+    const publicKeyHash = await Tezos.signer.publicKeyHash();
+    if (publicKeyHash) {
+      userAddress = publicKeyHash;
+      // instantiates contract
+      contract = await Tezos.contract.at(contractAddress);
+      tests = initializeTests(Tezos, contract, wallet);
+    }
+  };
+
   onMount(async () => {
     Tezos = new TezosToolkit(rpcUrl[connectedNetwork]);
-    // instantiates contract
-    contract = await Tezos.wallet.at(contractAddress);
     // instantiates the wallet
     wallet = new BeaconWallet({
       name: "Beacon Test Dapp",
@@ -113,10 +146,7 @@
     if (activeAccount) {
       userAddress = await wallet.getPKH();
     }
-    tests = initializeTests(Tezos, contract, wallet);
-
     //console.log("Active account:", activeAccount, userAddress);
-
     initialLoading = false;
   });
 </script>
@@ -173,7 +203,16 @@
         Connected as {userAddress.slice(0, 7)}...{userAddress.slice(-7)}
       </div>
       <div>
-        <button class="blue" on:click={disconnectWallet}>Disconnect</button>
+        <button
+          class="blue"
+          on:click={() => {
+            if (wallet) {
+              disconnectWallet();
+            } else {
+              userAddress = "";
+            }
+          }}>Disconnect</button
+        >
       </div>
     </div>
   </header>
@@ -205,10 +244,17 @@
       <div class="box connect">
         <div>Welcome to the <br /> Beacon Test Dapp</div>
         <br />
-        <button class="blue" on:click={initBeacon}>
+        <button class="blue main" on:click={initBeacon}>
           <i class="fas fa-wallet" />
           Connect your wallet
         </button>
+        <br />
+        <button class="blue secondary" on:click={connectNano}>
+          <i class="fab fa-usb" />
+          Connect your Nano Ledger
+        </button>
+        <br />
+        <br />
         <div>
           <label
             for="default-matrix-node"
