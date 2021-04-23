@@ -122,7 +122,7 @@
   onMount(async () => {
     Tezos = new TezosToolkit(rpcUrl[connectedNetwork]);
     // instantiates the wallet
-    wallet = new BeaconWallet({
+    /*wallet = new BeaconWallet({
       name: "Beacon Test Dapp",
       matrixNodes: [defaultMatrixNode] as any,
       preferredNetwork:
@@ -145,8 +145,8 @@
     const activeAccount = await wallet.client.getActiveAccount();
     if (activeAccount) {
       userAddress = await wallet.getPKH();
-    }
-    //console.log("Active account:", activeAccount, userAddress);
+    }*/
+
     initialLoading = false;
   });
 </script>
@@ -294,6 +294,9 @@
               value="testnet"
               bind:group={connectedNetwork}
               checked={connectedNetwork === "testnet"}
+              on:change={() => {
+                Tezos = new TezosToolkit(rpcUrl.testnet);
+              }}
             />
             Testnet
           </label>
@@ -307,6 +310,9 @@
               value="mainnet"
               bind:group={connectedNetwork}
               checked={connectedNetwork === "mainnet"}
+              on:change={() => {
+                Tezos = new TezosToolkit(rpcUrl.mainnet);
+              }}
             />
             Mainnet
           </label>
