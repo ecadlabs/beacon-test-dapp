@@ -2,8 +2,8 @@
   import { onMount } from "svelte";
   import { fly } from "svelte/transition";
   import { expoInOut } from "svelte/easing";
-  import {
-    TezosToolkit,
+  import { TezosToolkit } from "@taquito/taquito";
+  import type {
     ContractAbstraction,
     Wallet,
     ContractProvider
@@ -43,8 +43,8 @@
     mainnet: "https://api.tez.ie/rpc/mainnet" //"https://mainnet-tezos.giganode.io"
   };
   let taquitoVersion = {
-    name: "8.1.1",
-    link: "https://github.com/ecadlabs/taquito/tree/8.1.1"
+    name: "9.0.0",
+    link: "https://github.com/ecadlabs/taquito/releases/tag/9.0.0"
   };
   let initialLoading = true;
   let openModal = false;

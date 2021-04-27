@@ -2,12 +2,14 @@
   import { createEventDispatcher } from "svelte";
   import { fly } from "svelte/transition";
   import type { TestResult } from "./types";
+  import LinkIcon from "./LinkIcon.svelte";
 
   export let test, index, network;
 
   let executionTime = 0;
   let loading = false;
   let success: boolean | undefined;
+  let successOp = false;
   let opHash = "";
   let input = "";
   const dispatch = createEventDispatcher();
@@ -28,6 +30,7 @@
         const t2 = performance.now();
         executionTime = t2 - t1;
         success = true;
+        successOp = true;
         opHash = result.opHash;
         // special output for sign-payload
         if (test.id === "sign-payload" || test.id === "sign-payload-and-send") {
@@ -47,6 +50,7 @@
     } catch (error) {
       console.log(error);
       success = false;
+      successOp = false;
     } finally {
       loading = false;
       setTimeout(() => (success = undefined), 4000);
@@ -62,6 +66,16 @@
   #test-execution {
     text-align: right;
   }
+
+  .link-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+    a {
+      cursor: pointer;
+    }
+  }
 </style>
 
 <div
@@ -71,6 +85,25 @@
   id={`test-${test.id}`}
   in:fly={{ x: -1000, duration: 1000, delay: +index * 200 }}
 >
+  <div class="link-icon">
+    {#if opHash}
+      <a
+        href={`https://better-call.dev/${
+          network === "testnet" ? "edo2net" : "mainnet"
+        }/opg/${opHash}/contents`}
+        target="_blank"
+        rel="noreferrer noopener nofollow"
+      >
+        {#if successOp}
+          <LinkIcon color="#10B981" />
+        {:else}
+          <LinkIcon color="#EF4444" />
+        {/if}
+      </a>
+    {:else}
+      <LinkIcon color="#e5e5e5" />
+    {/if}
+  </div>
   <h3>Test {index + 1}: <br /> {test.name}</h3>
   <p id="test-description">{test.description}</p>
   {#if test.inputRequired}

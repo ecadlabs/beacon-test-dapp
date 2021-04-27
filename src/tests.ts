@@ -207,9 +207,18 @@ const batchApiContractCallsTest = async (
       .withContractCall(contract.methods.simple_param(7));
     const op = await batch.send();*/
     const batch = [
-      { kind: OpKind.TRANSACTION, ...contract.methods.simple_param(5) },
-      { kind: OpKind.TRANSACTION, ...contract.methods.simple_param(6) },
-      { kind: OpKind.TRANSACTION, ...contract.methods.simple_param(7) }
+      {
+        kind: OpKind.TRANSACTION,
+        ...contract.methods.simple_param(5).toTransferParams()
+      },
+      {
+        kind: OpKind.TRANSACTION,
+        ...contract.methods.simple_param(6).toTransferParams()
+      },
+      {
+        kind: OpKind.TRANSACTION,
+        ...contract.methods.simple_param(7).toTransferParams()
+      }
     ];
     const op = await callToContract.batch(batch).send();
     opHash = op.opHash;
