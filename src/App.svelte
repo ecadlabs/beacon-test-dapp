@@ -26,20 +26,20 @@
   import Modal from "./Modal.svelte";
 
   // https://ide.ligolang.org/p/LdCqNZ-G6rcKYkrbtmmD2A
-  // https://better-call.dev/edo2net/KT1AZaJHXhFb65CNteUWQ8rQqsAuQvYfGEzT/operations
+  // https://better-call.dev/florencenet/KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4/operations
 
   let tests: TestSettings[] = [];
   let Tezos: TezosToolkit;
   let wallet: BeaconWallet | undefined;
   let userAddress: string;
-  const contractAddress = "KT1AZaJHXhFb65CNteUWQ8rQqsAuQvYfGEzT";
+  const contractAddress = "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4";
   let contract:
     | ContractAbstraction<Wallet>
     | ContractAbstraction<ContractProvider>;
   let defaultMatrixNode = "matrix.papers.tech";
   let connectedNetwork: "testnet" | "mainnet" = "testnet";
   let rpcUrl = {
-    testnet: "https://api.tez.ie/rpc/edonet", //"https://edonet-tezos.giganode.io",
+    testnet: "https://api.tez.ie/rpc/florencenet", //"https://florencenet-tezos.giganode.io",
     mainnet: "https://api.tez.ie/rpc/mainnet" //"https://mainnet-tezos.giganode.io"
   };
   let taquitoVersion = {
@@ -61,7 +61,7 @@
         matrixNodes: [defaultMatrixNode] as any,
         preferredNetwork:
           connectedNetwork === "testnet"
-            ? NetworkType.EDONET
+            ? NetworkType.FLORENCENET
             : NetworkType.MAINNET,
         disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
         eventHandlers: {
@@ -81,7 +81,7 @@
       network: {
         type:
           connectedNetwork === "testnet"
-            ? NetworkType.EDONET
+            ? NetworkType.FLORENCENET
             : NetworkType.MAINNET,
         rpcUrl: rpcUrl[connectedNetwork]
       }
@@ -127,7 +127,7 @@
       matrixNodes: [defaultMatrixNode] as any,
       preferredNetwork:
         connectedNetwork === "testnet"
-          ? NetworkType.EDONET
+          ? NetworkType.FLORENCENET
           : NetworkType.MAINNET,
       disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
       eventHandlers: {
