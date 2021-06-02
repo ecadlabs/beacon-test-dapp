@@ -277,34 +277,6 @@
         </button>
         <br />
         <br />
-        <!--<div>
-          <label
-            for="default-matrix-node"
-            class:selected={defaultMatrixNode === "matrix.papers.tech"}
-          >
-            <input
-              type="radio"
-              id="default-matrix-node"
-              value="matrix.papers.tech"
-              bind:group={defaultMatrixNode}
-              checked={defaultMatrixNode === "matrix.papers.tech"}
-            />
-            Default Matrix Node
-          </label>
-          <label
-            for="taquito-matrix-node"
-            class:selected={defaultMatrixNode === "matrix.tez.ie"}
-          >
-            <input
-              type="radio"
-              id="taquito-matrix-node"
-              value="matrix.tez.ie"
-              bind:group={defaultMatrixNode}
-              checked={defaultMatrixNode === "matrix.tez.ie"}
-            />
-            Taquito Matrix Node
-          </label>
-        </div>-->
         <div>
           <label>
             <span class="select-title">RPC node:</span>
@@ -348,40 +320,6 @@
             </div>
           {/if}
         </div>
-        <!--<div>
-          <label
-            for="select-testnet"
-            class:selected={connectedNetwork === "testnet"}
-          >
-            <input
-              type="radio"
-              id="select-testnet"
-              value="testnet"
-              bind:group={connectedNetwork}
-              checked={connectedNetwork === "testnet"}
-              on:change={() => {
-                Tezos = new TezosToolkit(rpcUrl.testnet);
-              }}
-            />
-            Testnet
-          </label>
-          <label
-            for="select-mainnet"
-            class:selected={connectedNetwork === "mainnet"}
-          >
-            <input
-              type="radio"
-              id="select-mainnet"
-              value="mainnet"
-              bind:group={connectedNetwork}
-              checked={connectedNetwork === "mainnet"}
-              on:change={() => {
-                Tezos = new TezosToolkit(rpcUrl.mainnet);
-              }}
-            />
-            Mainnet
-          </label>
-        </div>-->
       </div>
     {/if}
   {/if}
