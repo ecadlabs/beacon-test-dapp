@@ -11,7 +11,7 @@
   let success: boolean | undefined;
   let successOp = false;
   let opHash = "";
-  let input = "";
+  let input = { text: "", fee: "", storageLimit: "", gasLimit: "" };
   const dispatch = createEventDispatcher();
 
   const runTest = async () => {
@@ -21,7 +21,11 @@
     const t1 = performance.now();
     try {
       let result: TestResult;
-      if (test.id === "sign-payload" || test.id === "sign-payload-and-send") {
+      if (
+        test.id === "sign-payload" ||
+        test.id === "sign-payload-and-send" ||
+        test.id === "set-transaction-limits"
+      ) {
         result = await test.run(input);
       } else {
         result = await test.run();
@@ -76,6 +80,15 @@
       cursor: pointer;
     }
   }
+
+  #tx-limits {
+    display: flex;
+
+    input {
+      width: 30%;
+      margin: 0px 10px;
+    }
+  }
 </style>
 
 <div
@@ -106,8 +119,23 @@
   </div>
   <h3>Test {index + 1}: <br /> {test.name}</h3>
   <p id="test-description">{test.description}</p>
-  {#if test.inputRequired}
-    <input type="text" placeholder="Input" bind:value={input} />
+  {#if test.inputRequired && test.inputType === "string"}
+    <input type="text" placeholder="Input" bind:value={input.text} />
+  {/if}
+  {#if test.inputRequired && test.inputType === "set-limits"}
+    <div id="tx-limits">
+      <input type="number" placeholder="Fee" bind:value={input.fee} />
+      <input
+        type="number"
+        placeholder="Storage Limit"
+        bind:value={input.storageLimit}
+      />
+      <input
+        type="number"
+        placeholder="Gas Limit"
+        bind:value={input.gasLimit}
+      />
+    </div>
   {/if}
   {#if executionTime && test.showExecutionTime}
     <p>
@@ -118,7 +146,9 @@
     <p>
       <a
         href={test.id === "send-tez"
-          ? `https://${network === "testnet" ? "florencenet." : ""}tzkt.io/${opHash}`
+          ? `https://${
+              network === "testnet" ? "florencenet." : ""
+            }tzkt.io/${opHash}`
           : `https://better-call.dev/${
               network === "testnet" ? "florencenet/" : ""
             }opg/${opHash}/contents`}
@@ -130,6 +160,18 @@
     <p>&nbsp;</p>
   {/if}
   <p id="test-execution">
+    {#if test.inputRequired && test.inputType === "set-limits"}
+      <button
+        class="button blue"
+        on:click={() =>
+          (input = {
+            text: "",
+            storageLimit: "20",
+            gasLimit: "4000",
+            fee: "800"
+          })}>Default</button
+      >
+    {/if}
     <button
       class={`button blue ${loading ? "loading" : ""}`}
       disabled={loading}

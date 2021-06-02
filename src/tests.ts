@@ -300,6 +300,32 @@ const signPayloadAndSend = async (
   }
 };
 
+const setTransactionLimits = async (
+  contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>,
+  fee: string,
+  storageLimit: string,
+  gasLimit: string
+): Promise<TestResult> => {
+  let opHash = "";
+  try {
+    if (isNaN(+fee) || isNaN(+storageLimit) || isNaN(+gasLimit)) {
+      throw "One of the parameters is not a number";
+    }
+
+    const op = await contract.methods.simple_param(5).send({
+      storageLimit: +storageLimit,
+      gasLimit: +gasLimit,
+      fee: +fee
+    });
+    opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
+    await op.confirmation();
+    return { success: true, opHash };
+  } catch (error) {
+    console.log(error);
+    return { success: false, opHash: "" };
+  }
+};
+
 export default (
   Tezos: TezosToolkit,
   contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>,
@@ -388,18 +414,36 @@ export default (
     id: "sign-payload",
     name: "Sign the provided payload",
     description: "This test signs the payload provided by the user",
-    run: input => signPayload(input, wallet),
+    run: input => signPayload(input.text, wallet),
     showExecutionTime: false,
-    inputRequired: true
+    inputRequired: true,
+    inputType: "string"
   },
   {
     id: "sign-payload-and-send",
     name: "Sign and send the signature to the contract",
     description:
       "This test signs the provided payload and sends it to the contract to check it",
-    run: input => signPayloadAndSend(input, wallet, contract),
+    run: input => signPayloadAndSend(input.text, wallet, contract),
     showExecutionTime: false,
-    inputRequired: true
+    inputRequired: true,
+    inputType: "string"
+  },
+  {
+    id: "set-transaction-limits",
+    name: "Set the transaction limits",
+    description:
+      "This test allows you to set the fee, storage limit and gas limit manually",
+    run: input =>
+      setTransactionLimits(
+        contract,
+        input.fee,
+        input.storageLimit,
+        input.gasLimit
+      ),
+    showExecutionTime: false,
+    inputRequired: true,
+    inputType: "set-limits"
   }
   /*{
       id: "originate-fail",
