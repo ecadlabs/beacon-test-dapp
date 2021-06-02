@@ -89,7 +89,7 @@
     {#if opHash}
       <a
         href={`https://better-call.dev/${
-          network === "testnet" ? "edo2net" : "mainnet"
+          network === "testnet" ? "florencenet" : "mainnet"
         }/opg/${opHash}/contents`}
         target="_blank"
         rel="noreferrer noopener nofollow"
@@ -118,9 +118,9 @@
     <p>
       <a
         href={test.id === "send-tez"
-          ? `https://${network === "testnet" ? "edonet." : ""}tzkt.io/${opHash}`
+          ? `https://${network === "testnet" ? "florencenet." : ""}tzkt.io/${opHash}`
           : `https://better-call.dev/${
-              network === "testnet" ? "edonet/" : ""
+              network === "testnet" ? "florencenet/" : ""
             }opg/${opHash}/contents`}
         target="_blank"
         rel="noopener noreferrer nofollow">View operation</a

@@ -26,25 +26,22 @@
   import Modal from "./Modal.svelte";
 
   // https://ide.ligolang.org/p/LdCqNZ-G6rcKYkrbtmmD2A
-  // https://better-call.dev/edo2net/KT1AZaJHXhFb65CNteUWQ8rQqsAuQvYfGEzT/operations
+  // https://better-call.dev/florencenet/KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4/operations
 
   let tests: TestSettings[] = [];
   let Tezos: TezosToolkit;
   let wallet: BeaconWallet | undefined;
   let userAddress: string;
-  const contractAddress = "KT1AZaJHXhFb65CNteUWQ8rQqsAuQvYfGEzT";
+  const contractAddress = "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4";
   let contract:
     | ContractAbstraction<Wallet>
     | ContractAbstraction<ContractProvider>;
   let defaultMatrixNode = "matrix.papers.tech";
-  let connectedNetwork: "testnet" | "mainnet" = "testnet";
+  let connectedNetwork: "testnet" | "mainnet" | "custom" = "testnet";
   let rpcUrl = {
-    testnet: "https://api.tez.ie/rpc/edonet", //"https://edonet-tezos.giganode.io",
-    mainnet: "https://api.tez.ie/rpc/mainnet" //"https://mainnet-tezos.giganode.io"
-  };
-  let taquitoVersion = {
-    name: "9.0.0",
-    link: "https://github.com/ecadlabs/taquito/releases/tag/9.0.0"
+    testnet: "https://api.tez.ie/rpc/florencenet", //"https://florencenet-tezos.giganode.io",
+    mainnet: "https://api.tez.ie/rpc/mainnet", //"https://mainnet-tezos.giganode.io"
+    custom: ""
   };
   let initialLoading = true;
   let openModal = false;
@@ -52,17 +49,29 @@
     title: "",
     body: []
   };
+  let openCustomNetwork = false;
+  let customNetwork = connectedNetwork;
+  let openCustomMatrixNode = false;
+  let customMatrixNode = defaultMatrixNode;
 
   const initBeacon = async () => {
+    let networkType: NetworkType;
+    if (connectedNetwork === "testnet") {
+      networkType = NetworkType.FLORENCENET;
+    } else if (connectedNetwork === "mainnet") {
+      networkType = NetworkType.MAINNET;
+    } else if (connectedNetwork === "custom") {
+      networkType = NetworkType.CUSTOM;
+    }
+
+    console.log(connectedNetwork, networkType, defaultMatrixNode);
+
     if (!wallet) {
       // instantiates the wallet
       wallet = new BeaconWallet({
         name: "Beacon Test Dapp",
         matrixNodes: [defaultMatrixNode] as any,
-        preferredNetwork:
-          connectedNetwork === "testnet"
-            ? NetworkType.EDONET
-            : NetworkType.MAINNET,
+        preferredNetwork: networkType,
         disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
         eventHandlers: {
           // To keep the pairing alert, we have to add the following default event handlers back
@@ -79,10 +88,7 @@
 
     await wallet.requestPermissions({
       network: {
-        type:
-          connectedNetwork === "testnet"
-            ? NetworkType.EDONET
-            : NetworkType.MAINNET,
+        type: networkType,
         rpcUrl: rpcUrl[connectedNetwork]
       }
     });
@@ -119,34 +125,50 @@
     }
   };
 
+  const changeNetwork = event => {
+    switch (event.target.value) {
+      case "mainnet":
+        openCustomNetwork = false;
+        connectedNetwork = "mainnet";
+        Tezos = new TezosToolkit(rpcUrl.mainnet);
+        break;
+      case "testnet":
+        openCustomNetwork = false;
+        connectedNetwork = "testnet";
+        Tezos = new TezosToolkit(rpcUrl.testnet);
+        break;
+      case "custom":
+        openCustomMatrixNode = false;
+        openCustomNetwork = true;
+        break;
+    }
+  };
+
+  const changeMatrixNode = event => {
+    switch (event.target.value) {
+      case "default":
+        openCustomMatrixNode = false;
+        defaultMatrixNode === "matrix.papers.tech";
+        break;
+      case "taquito":
+        openCustomMatrixNode = false;
+        defaultMatrixNode === "matrix.tez.ie";
+        break;
+      case "custom":
+        openCustomNetwork = false;
+        openCustomMatrixNode = true;
+        defaultMatrixNode === "matrix.papers.tech";
+        if (!rpcUrl.custom) {
+          // in case the user did not provide any custom network URL
+          connectedNetwork = "testnet";
+          Tezos = new TezosToolkit(rpcUrl.testnet);
+        }
+        break;
+    }
+  };
+
   onMount(async () => {
     Tezos = new TezosToolkit(rpcUrl[connectedNetwork]);
-    // instantiates the wallet
-    /*wallet = new BeaconWallet({
-      name: "Beacon Test Dapp",
-      matrixNodes: [defaultMatrixNode] as any,
-      preferredNetwork:
-        connectedNetwork === "testnet"
-          ? NetworkType.EDONET
-          : NetworkType.MAINNET,
-      disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
-      eventHandlers: {
-        // To keep the pairing alert, we have to add the following default event handlers back
-        [BeaconEvent.PAIR_INIT]: {
-          handler: defaultEventCallbacks.PAIR_INIT
-        },
-        [BeaconEvent.PAIR_SUCCESS]: {
-          handler: defaultEventCallbacks.PAIR_SUCCESS
-        }
-      }
-    });
-    Tezos.setWalletProvider(wallet);
-    // checks if active account
-    const activeAccount = await wallet.client.getActiveAccount();
-    if (activeAccount) {
-      userAddress = await wallet.getPKH();
-    }*/
-
     initialLoading = false;
   });
 </script>
@@ -255,7 +277,7 @@
         </button>
         <br />
         <br />
-        <div>
+        <!--<div>
           <label
             for="default-matrix-node"
             class:selected={defaultMatrixNode === "matrix.papers.tech"}
@@ -282,8 +304,51 @@
             />
             Taquito Matrix Node
           </label>
+        </div>-->
+        <div>
+          <label>
+            <span class="select-title">RPC node:</span>
+            <select
+              bind:value={connectedNetwork}
+              on:change={changeNetwork}
+              on:blur={changeNetwork}
+            >
+              <option value="testnet">Testnet</option>
+              <option value="mainnet">Mainnet</option>
+              <option value="custom">Custom</option>
+            </select>
+          </label>
+          <label>
+            <span class="select-title">Matrix node:</span>
+            <select on:change={changeMatrixNode} on:blur={changeMatrixNode}>
+              <option value="default">Default</option>
+              <option value="taquito">Taquito</option>
+              <option value="custom">Custom</option>
+            </select>
+          </label>
         </div>
         <div>
+          {#if openCustomNetwork}
+            <div class="custom-input">
+              <div>Enter your custom network URL:</div>
+              <input type="text" bind:value={rpcUrl.custom} />
+              <button class="blue" on:click={() => (openCustomNetwork = false)}
+                >Add</button
+              >
+            </div>
+          {/if}
+          {#if openCustomMatrixNode}
+            <div class="custom-input">
+              <div>Enter your custom Matrix node:</div>
+              <input type="text" bind:value={defaultMatrixNode} />
+              <button
+                class="blue"
+                on:click={() => (openCustomMatrixNode = false)}>Add</button
+              >
+            </div>
+          {/if}
+        </div>
+        <!--<div>
           <label
             for="select-testnet"
             class:selected={connectedNetwork === "testnet"}
@@ -316,24 +381,13 @@
             />
             Mainnet
           </label>
-        </div>
+        </div>-->
       </div>
     {/if}
   {/if}
 </main>
 <div id="taquito-version">
-  Taquito version:
-  {#if taquitoVersion.link}
-    <a
-      href={taquitoVersion.link}
-      target="_blank"
-      rel="noopener noreferrer nofollow"
-    >
-      {taquitoVersion.name}
-    </a>
-  {:else}
-    <span>{taquitoVersion.name}</span>
-  {/if}
+  Taquito version: <span>{Tezos ? Tezos.getVersionInfo().version : "N/A"}</span>
 </div>
 {#if openModal}
   <Modal close={() => (openModal = false)}>

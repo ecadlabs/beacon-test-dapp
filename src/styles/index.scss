@@ -74,7 +74,7 @@ $dark-ratio: 15;
       }
     }
 
-    label {
+    label.custom {
       font-size: 0.8rem;
       margin: 0px 10px;
       padding: 10px 10px 10px 5px;
@@ -96,6 +96,10 @@ $dark-ratio: 15;
     input[type="radio"] {
       appearance: none;
       outline: none;
+    }
+
+    .select-title {
+      font-size: 0.7rem;
     }
   }
 
@@ -134,6 +138,21 @@ $dark-ratio: 15;
 
   &.error {
     background-color: rgba(254, 226, 226, 1);
+  }
+
+  .custom-input {
+    font-size: 1rem;
+    color: darken($blue, $dark-ratio * 2);
+    margin-top: 20px;
+
+    input[type="text"] {
+      padding: 10px;
+      border-radius: 10px;
+      width: 50%;
+      border: none;
+      outline: none;
+      background-color: lighten($blue, 12);
+    }
   }
 }
 
@@ -201,6 +220,17 @@ button {
     -webkit-animation: pulsate-fwd 0.5s ease-in-out infinite both;
     animation: pulsate-fwd 0.5s ease-in-out infinite both;
   }
+}
+
+select {
+  border: none;
+  border-radius: 10px;
+  font-family: "Montserrat", sans-serif;
+  outline: none;
+  padding: 10px;
+  margin: 0px 15px;
+  background: rgba(190, 227, 248, 0.4);
+  color: darken($blue, $dark-ratio * 2);
 }
 
 /* ----------------------------------------------

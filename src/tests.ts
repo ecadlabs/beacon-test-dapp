@@ -145,7 +145,8 @@ const originateSuccess = async (Tezos: TezosToolkit): Promise<TestResult> => {
   let opHash = "";
   try {
     // fetches contract code
-    const code = (await Tezos.wallet.at("KT1GCEnLjhTswn98RCNFxXJ6bWZgYrZ9c1nY"))
+    // https://better-call.dev/florencenet/KT1RH3gjrnrarQ4qMgxotUxLocX8TM3Fconm/operations
+    const code = (await Tezos.wallet.at("KT1RH3gjrnrarQ4qMgxotUxLocX8TM3Fconm"))
       .script.code;
     const storage = new MichelsonMap();
     const op = await Tezos.wallet.originate({ code, storage }).send();
