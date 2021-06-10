@@ -174,14 +174,17 @@
 </script>
 
 <style lang="scss">
+  .container {
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 10% 85% 5%;
+  }
   header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     height: 120px;
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
     background-color: white;
     z-index: 800;
@@ -193,10 +196,19 @@
   }
 
   main {
-    display: grid;
-    height: 100%;
-    z-index: 10;
-    position: relative;
+    &.disconnected {
+      display: grid;
+      height: 100%;
+      width: 100%;
+      z-index: 10;
+      place-items: center;
+    }
+
+    &.connected {
+      height: 100%;
+      width: 100%;
+      overflow: auto;
+    }
   }
 
   .testboxes {
@@ -207,125 +219,137 @@
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: auto;
   }
+
+  footer {
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 10px;
+  }
 </style>
 
-{#if userAddress}
-  <header>
-    <div class="title">Beacon Test Dapp</div>
-    <div
-      class="box address"
-      in:fly={{
-        x: -2000,
-        duration: 2000,
-        delay: (tests.length + 1) * 200,
-        easing: expoInOut
-      }}
-    >
-      <div>
-        Connected as {userAddress.slice(0, 7)}...{userAddress.slice(-7)}
+<div class="container">
+  {#if userAddress}
+    <header>
+      <div class="title">Beacon Test Dapp</div>
+      <div
+        class="box address"
+        in:fly={{
+          x: -2000,
+          duration: 2000,
+          delay: (tests.length + 1) * 200,
+          easing: expoInOut
+        }}
+      >
+        <div>
+          Connected as {userAddress.slice(0, 7)}...{userAddress.slice(-7)}
+        </div>
+        <div>
+          <button
+            class="blue"
+            on:click={() => {
+              if (wallet) {
+                disconnectWallet();
+              } else {
+                userAddress = "";
+              }
+            }}>Disconnect</button
+          >
+        </div>
       </div>
-      <div>
-        <button
-          class="blue"
-          on:click={() => {
-            if (wallet) {
-              disconnectWallet();
-            } else {
-              userAddress = "";
-            }
-          }}>Disconnect</button
-        >
-      </div>
-    </div>
-  </header>
-{/if}
-<main
-  style={userAddress
-    ? "place-items:center start;padding-top:120px;margin-top:120px;"
-    : "place-items:center"}
->
-  {#if initialLoading}
-    <div class="box connect">Loading</div>
+    </header>
   {:else}
-    <!--User is logged in-->
-    {#if userAddress}
-      <div class="testboxes">
-        {#each tests as test, index}
-          <Box
-            {test}
-            {index}
-            network={connectedNetwork}
-            on:open-modal={e => {
-              modalData = { ...e.detail };
-              openModal = true;
-            }}
-          />
-        {/each}
-      </div>
-    {:else}
-      <div class="box connect">
-        <div>Welcome to the <br /> Beacon Test Dapp</div>
-        <br />
-        <button class="blue main" on:click={initBeacon}>
-          <i class="fas fa-wallet" />
-          Connect your wallet
-        </button>
-        <br />
-        <button class="blue secondary" on:click={connectNano}>
-          <i class="fab fa-usb" />
-          Connect your Nano Ledger
-        </button>
-        <br />
-        <br />
-        <div>
-          <label>
-            <span class="select-title">RPC node:</span>
-            <select
-              bind:value={connectedNetwork}
-              on:change={changeNetwork}
-              on:blur={changeNetwork}
-            >
-              <option value="testnet">Testnet</option>
-              <option value="mainnet">Mainnet</option>
-              <option value="custom">Custom</option>
-            </select>
-          </label>
-          <label>
-            <span class="select-title">Matrix node:</span>
-            <select on:change={changeMatrixNode} on:blur={changeMatrixNode}>
-              <option value="default">Default</option>
-              <option value="taquito">Taquito</option>
-              <option value="custom">Custom</option>
-            </select>
-          </label>
-        </div>
-        <div>
-          {#if openCustomNetwork}
-            <div class="custom-input">
-              <div>Enter your custom network URL:</div>
-              <input type="text" bind:value={rpcUrl.custom} />
-              <button class="blue" on:click={() => (openCustomNetwork = false)}
-                >Add</button
-              >
-            </div>
-          {/if}
-          {#if openCustomMatrixNode}
-            <div class="custom-input">
-              <div>Enter your custom Matrix node:</div>
-              <input type="text" bind:value={defaultMatrixNode} />
-              <button
-                class="blue"
-                on:click={() => (openCustomMatrixNode = false)}>Add</button
-              >
-            </div>
-          {/if}
-        </div>
-      </div>
-    {/if}
+    <div />
   {/if}
-</main>
-<div id="taquito-version">
-  Taquito version: <span>{Tezos ? Tezos.getVersionInfo().version : "N/A"}</span>
+  <main class:connected={userAddress} class:disconnected={!userAddress}>
+    {#if initialLoading}
+      <div class="box connect">Loading</div>
+    {:else}
+      <!--User is logged in-->
+      {#if userAddress}
+        <div class="testboxes">
+          {#each tests as test, index}
+            <Box
+              {test}
+              {index}
+              network={connectedNetwork}
+              on:open-modal={e => {
+                modalData = { ...e.detail };
+                openModal = true;
+              }}
+            />
+          {/each}
+        </div>
+      {:else}
+        <div class="box connect">
+          <div>Welcome to the <br /> Beacon Test Dapp</div>
+          <br />
+          <button class="blue main" on:click={initBeacon}>
+            <i class="fas fa-wallet" />
+            Connect your wallet
+          </button>
+          <br />
+          <button class="blue secondary" on:click={connectNano}>
+            <i class="fab fa-usb" />
+            Connect your Nano Ledger
+          </button>
+          <br />
+          <br />
+          <div>
+            <label>
+              <span class="select-title">RPC node:</span>
+              <select
+                bind:value={connectedNetwork}
+                on:change={changeNetwork}
+                on:blur={changeNetwork}
+              >
+                <option value="testnet">Testnet</option>
+                <option value="mainnet">Mainnet</option>
+                <option value="custom">Custom</option>
+              </select>
+            </label>
+            <label>
+              <span class="select-title">Matrix node:</span>
+              <select on:change={changeMatrixNode} on:blur={changeMatrixNode}>
+                <option value="default">Default</option>
+                <option value="taquito">Taquito</option>
+                <option value="custom">Custom</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            {#if openCustomNetwork}
+              <div class="custom-input">
+                <div>Enter your custom network URL:</div>
+                <input type="text" bind:value={rpcUrl.custom} />
+                <button
+                  class="blue"
+                  on:click={() => (openCustomNetwork = false)}>Add</button
+                >
+              </div>
+            {/if}
+            {#if openCustomMatrixNode}
+              <div class="custom-input">
+                <div>Enter your custom Matrix node:</div>
+                <input type="text" bind:value={defaultMatrixNode} />
+                <button
+                  class="blue"
+                  on:click={() => (openCustomMatrixNode = false)}>Add</button
+                >
+              </div>
+            {/if}
+          </div>
+        </div>
+      {/if}
+    {/if}
+  </main>
+  <footer id="taquito-version">
+    <div />
+    <div>
+      Taquito version: {Tezos ? Tezos.getVersionInfo().version : "N/A"}
+    </div>
+  </footer>
 </div>
 {#if openModal}
   <Modal close={() => (openModal = false)}>
