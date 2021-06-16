@@ -53,6 +53,7 @@
   let customNetwork = connectedNetwork;
   let openCustomMatrixNode = false;
   let customMatrixNode = defaultMatrixNode;
+  let disableDefaultEvents = true;
 
   const initBeacon = async () => {
     let networkType: NetworkType;
@@ -68,21 +69,29 @@
 
     if (!wallet) {
       // instantiates the wallet
-      wallet = new BeaconWallet({
-        name: "Beacon Test Dapp",
-        matrixNodes: [defaultMatrixNode] as any,
-        preferredNetwork: networkType,
-        disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
-        eventHandlers: {
-          // To keep the pairing alert, we have to add the following default event handlers back
-          [BeaconEvent.PAIR_INIT]: {
-            handler: defaultEventCallbacks.PAIR_INIT
-          },
-          [BeaconEvent.PAIR_SUCCESS]: {
-            handler: defaultEventCallbacks.PAIR_SUCCESS
-          }
-        }
-      });
+      wallet = new BeaconWallet(
+        disableDefaultEvents
+          ? {
+              name: "Beacon Test Dapp",
+              matrixNodes: [defaultMatrixNode] as any,
+              preferredNetwork: networkType,
+              disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
+              eventHandlers: {
+                // To keep the pairing alert, we have to add the following default event handlers back
+                [BeaconEvent.PAIR_INIT]: {
+                  handler: defaultEventCallbacks.PAIR_INIT
+                },
+                [BeaconEvent.PAIR_SUCCESS]: {
+                  handler: defaultEventCallbacks.PAIR_SUCCESS
+                }
+              }
+            }
+          : {
+              name: "Beacon Test Dapp",
+              matrixNodes: [defaultMatrixNode] as any,
+              preferredNetwork: networkType
+            }
+      );
       Tezos.setWalletProvider(wallet);
     }
 
@@ -339,6 +348,12 @@
                 >
               </div>
             {/if}
+          </div>
+          <div>
+            <label>
+              <span class="select-title">Disable default events:</span>
+              <input type="checkbox" bind:checked={disableDefaultEvents} />
+            </label>
           </div>
         </div>
       {/if}

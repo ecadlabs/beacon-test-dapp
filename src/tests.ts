@@ -10,6 +10,7 @@ import { BeaconWallet } from "@taquito/beacon-wallet";
 import { char2Bytes } from "@taquito/utils";
 import { RequestSignPayloadInput, SigningType } from "@airgap/beacon-sdk";
 import { TestSettings, TestResult } from "./types";
+import store from "./store";
 
 const sendTez = async (Tezos: TezosToolkit): Promise<TestResult> => {
   let opHash = "";
@@ -326,6 +327,37 @@ const setTransactionLimits = async (
   }
 };
 
+const tryConfirmationObservable = async (
+  Tezos: TezosToolkit
+): Promise<TestResult> => {
+  let opHash = "";
+  try {
+    const op = await Tezos.wallet
+      .transfer({ to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb", amount: 1 })
+      .send();
+
+    const events = await new Promise((resolve, reject) => {
+      const evts: any[] = [];
+      op.confirmationObservable(3).subscribe(
+        event => {
+          console.log(event);
+          store.updateConfirmationObservableTest({
+            level: event.block.header.level
+          });
+          evts.push(event);
+        },
+        reject,
+        () => resolve(evts)
+      );
+    });
+
+    return { success: true, opHash, output: JSON.stringify(events) };
+  } catch (error) {
+    console.log(error);
+    return { success: false, opHash: "" };
+  }
+};
+
 export default (
   Tezos: TezosToolkit,
   contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>,
@@ -444,6 +476,15 @@ export default (
     showExecutionTime: false,
     inputRequired: true,
     inputType: "set-limits"
+  },
+  {
+    id: "confirmation-observable",
+    name: "Subscribe to confirmations",
+    description:
+      "This test sends 1 tez to Alice and subscribes to 3 confirmations",
+    run: () => tryConfirmationObservable(Tezos),
+    showExecutionTime: false,
+    inputRequired: false
   }
   /*{
       id: "originate-fail",

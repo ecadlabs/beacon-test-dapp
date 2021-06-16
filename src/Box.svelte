@@ -3,6 +3,7 @@
   import { fly } from "svelte/transition";
   import type { TestResult } from "./types";
   import LinkIcon from "./LinkIcon.svelte";
+  import store from "./store";
 
   export let test, index, network;
 
@@ -46,6 +47,11 @@
               result.sigDetails.bytes,
               result.output
             ]
+          });
+        } else if (test.id === "confirmation-observable") {
+          dispatch("open-modal", {
+            title: "Confirmations through observable",
+            body: result.output
           });
         }
       } else {
@@ -152,6 +158,16 @@
           bind:value={input.gasLimit}
         /></label
       >
+    </div>
+  {/if}
+  {#if test.id === "confirmation-observable" && $store.confirmationObservableTest}
+    <div>
+      {$store.confirmationObservableTest.length} confirmation{$store
+        .confirmationObservableTest.length > 1
+        ? "s"
+        : ""} (level {$store.confirmationObservableTest[
+        $store.confirmationObservableTest.length - 1
+      ].level})
     </div>
   {/if}
   {#if executionTime && test.showExecutionTime}
