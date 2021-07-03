@@ -43,10 +43,10 @@
   },
   "dependencies": {
     "@ledgerhq/hw-transport-u2f": "^5.36.0-deprecated",
-    "@taquito/beacon-wallet": "9.2.0-beta-RC.2",
-    "@taquito/ledger-signer": "9.2.0-beta-RC.2",
-    "@taquito/taquito": "9.2.0-beta-RC.2",
-    "@taquito/utils": "9.2.0-beta-RC.2",
+    "@taquito/beacon-wallet": "9.2.0",
+    "@taquito/ledger-signer": "9.2.0",
+    "@taquito/taquito": "9.2.0",
+    "@taquito/utils": "9.2.0",
     "serve": "^11.3.2"
   },
   "browserslist": [
