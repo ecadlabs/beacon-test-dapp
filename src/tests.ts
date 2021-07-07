@@ -65,7 +65,7 @@ const callFail = async (
     const op = await contract.methods.fail([["unit"]]).send();
     opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
-    return { success: false, opHash: "", output: "Test passed: contract call failed as expected" };
+    return { success: false, opHash: "" };
   } catch (error) {
     console.log(error);
     if (
@@ -91,7 +91,7 @@ const callFailWithInt = async (
     const op = await contract.methods.fail_with_int([["unit"]]).send();
     opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
-    return { success: false, opHash: "", output: "Test passed: contract call failed as expected" };
+    return { success: false, opHash: "" };
   } catch (error) {
     console.log(error);
     if (
@@ -117,7 +117,7 @@ const callFailWithPair = async (
     const op = await contract.methods.fail_with_pair([["unit"]]).send();
     opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
-    return { success: false, opHash: "", output: "Test passed: contract call failed as expected" };
+    return { success: false, opHash: ""};
   } catch (error) {
     console.log(error);
     if (
