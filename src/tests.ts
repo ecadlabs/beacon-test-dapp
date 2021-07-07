@@ -65,7 +65,7 @@ const callFail = async (
     const op = await contract.methods.fail([["unit"]]).send();
     opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
-    return { success: false, opHash: "" };
+    return { success: false, opHash: "", output: "Test passed: contract call failed as expected" };
   } catch (error) {
     console.log(error);
     if (
@@ -83,7 +83,7 @@ const callFail = async (
   }
 };
 
-const callFaiWithInt = async (
+const callFailWithInt = async (
   contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>
 ): Promise<TestResult> => {
   let opHash = "";
@@ -91,7 +91,7 @@ const callFaiWithInt = async (
     const op = await contract.methods.fail_with_int([["unit"]]).send();
     opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
-    return { success: false, opHash: "" };
+    return { success: false, opHash: "", output: "Test passed: contract call failed as expected" };
   } catch (error) {
     console.log(error);
     if (
@@ -109,7 +109,7 @@ const callFaiWithInt = async (
   }
 };
 
-const callFaiWithPair = async (
+const callFailWithPair = async (
   contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>
 ): Promise<TestResult> => {
   let opHash = "";
@@ -117,7 +117,7 @@ const callFaiWithPair = async (
     const op = await contract.methods.fail_with_pair([["unit"]]).send();
     opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
-    return { success: false, opHash: "" };
+    return { success: false, opHash: "", output: "Test passed: contract call failed as expected" };
   } catch (error) {
     console.log(error);
     if (
@@ -366,7 +366,7 @@ export default (
   {
     id: "send-tez",
     name: "Send tez",
-    description: "This test sends 1 tez to Alice's address",
+    description: "This test sends 1 tez to Alice's address (tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb)",
     run: () => sendTez(Tezos),
     showExecutionTime: false,
     inputRequired: false
@@ -374,7 +374,7 @@ export default (
   {
     id: "contract-call-simple-type",
     name: "Contract call with int",
-    description: "This test calls a contract entrypoint and passes an int",
+    description: "This test calls a contract entrypoint named simple_param and passes an int value of `5`",
     run: () => sendInt(contract),
     showExecutionTime: false,
     inputRequired: false
@@ -383,7 +383,7 @@ export default (
     id: "contract-call-complex-type",
     name: "Contract call with (pair nat string)",
     description:
-      "This test calls a contract entrypoint and passes a pair holding a nat and a string",
+      "This test calls a contract entrypoint named complex_param and passes a pair (5, `Taquito`) holding a nat and a string",
     run: () => sendComplexParam(contract),
     showExecutionTime: false,
     inputRequired: false
@@ -392,7 +392,7 @@ export default (
     id: "contract-call-fail",
     name: "Contract call that fails",
     description:
-      'This test calls a contract entrypoint that fails with the message "Fail entrypoint"',
+      'This test calls a contract entrypoint named fail that fails with the message "Fail entrypoint"',
     run: () => callFail(contract),
     showExecutionTime: false,
     inputRequired: false
@@ -400,16 +400,16 @@ export default (
   {
     id: "contract-call-fail-with-int",
     name: "Contract call that fails with int",
-    description: "This test calls a contract entrypoint that fails with an int",
-    run: () => callFaiWithInt(contract),
+    description: "This test calls a contract entrypoint named fail_with_int",
+    run: () => callFailWithInt(contract),
     showExecutionTime: false,
     inputRequired: false
   },
   {
     id: "contract-call-fail-with-pair",
     name: "Contract call that fails with (pair int string)",
-    description: "This test calls a contract entrypoint that fails with a pair",
-    run: () => callFaiWithPair(contract),
+    description: "This test calls a contract entrypoint named fail_with_pair",
+    run: () => callFailWithPair(contract),
     showExecutionTime: false,
     inputRequired: false
   },
@@ -424,7 +424,7 @@ export default (
   {
     id: "batch-api",
     name: "Use the Batch API with a wallet",
-    description: "This test sends 0.3 tez to 3 different addresses",
+    description: "This test sends 0.3 tez to 3 different addresses: tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu, tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb, and tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6",
     run: () => batchApiTest(Tezos),
     showExecutionTime: false,
     inputRequired: false
