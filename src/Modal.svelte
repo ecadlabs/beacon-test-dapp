@@ -31,10 +31,10 @@
   }
 
   :global([slot="body"]) {
+    width: 90%;
     display: grid;
     grid-template-rows: auto;
-    grid-template-columns: 20% 80%;
-    margin: 0px 30px 0px 20px;
+    grid-template-columns: 30% 70%;
     gap: 15px;
   }
 </style>
@@ -42,9 +42,7 @@
 <div class="modal-wrapper" on:click={close} transition:fade={{ duration: 300 }}>
   <div class="modal" transition:fly={{ duration: 500, y: 200 }}>
     <h3><slot name="title">Unnamed modal</slot></h3>
-    <div>
-      <slot name="body">Aren't you missing something? :)</slot>
-    </div>
+    <slot name="body">Aren't you missing something? :)</slot>
     <div />
   </div>
 </div>

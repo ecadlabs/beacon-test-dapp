@@ -328,30 +328,39 @@ const setTransactionLimits = async (
 };
 
 const tryConfirmationObservable = async (
-  Tezos: TezosToolkit
+  contract: ContractAbstraction<Wallet>
 ): Promise<TestResult> => {
   let opHash = "";
   try {
-    const op = await Tezos.wallet
+    /*const op = await Tezos.wallet
       .transfer({ to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb", amount: 1 })
-      .send();
+      .send();*/
+    store.resetConfirmationObservableTest();
 
-    const events = await new Promise((resolve, reject) => {
+    const storage: any = await contract.storage();
+    const val = storage.simple.toNumber() + 1;
+    const op = await contract.methods.simple_param(val).send();
+
+    const entries = await new Promise((resolve, reject) => {
       const evts: any[] = [];
       op.confirmationObservable(3).subscribe(
         event => {
           console.log(event);
-          store.updateConfirmationObservableTest({
-            level: event.block.header.level
-          });
-          evts.push(event);
+          const entry = {
+            level: event.block.header.level,
+            currentConfirmation: event.currentConfirmation
+          };
+          store.updateConfirmationObservableTest(entry);
+          evts.push(entry);
         },
-        reject,
+        () => reject(null),
         () => resolve(evts)
       );
     });
 
-    return { success: true, opHash, output: JSON.stringify(events) };
+    console.log({ entries });
+
+    return { success: true, opHash, confirmationObsOutput: entries as any };
   } catch (error) {
     console.log(error);
     return { success: false, opHash: "" };
@@ -481,8 +490,9 @@ export default (
     id: "confirmation-observable",
     name: "Subscribe to confirmations",
     description:
-      "This test sends 1 tez to Alice and subscribes to 3 confirmations",
-    run: () => tryConfirmationObservable(Tezos),
+      "This test updates the underlying contract and subscribes to 3 confirmations",
+    run: () =>
+      tryConfirmationObservable(contract as ContractAbstraction<Wallet>),
     showExecutionTime: false,
     inputRequired: false
   }

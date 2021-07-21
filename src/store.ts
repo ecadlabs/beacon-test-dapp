@@ -2,7 +2,9 @@ import { writable } from "svelte/store";
 import type { TezosToolkit } from "@taquito/taquito";
 
 interface State {
-  confirmationObservableTest: undefined | { level: number }[];
+  confirmationObservableTest:
+    | undefined
+    | { level: number; currentConfirmation: number }[];
 }
 
 const initialState: State = {
@@ -21,6 +23,11 @@ const state = {
         Array.isArray(store.confirmationObservableTest)
           ? [...store.confirmationObservableTest, conf]
           : [conf]
+    })),
+  resetConfirmationObservableTest: () =>
+    store.update(store => ({
+      ...store,
+      confirmationObservableTest: undefined
     }))
 };
 

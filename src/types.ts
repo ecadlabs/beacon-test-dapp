@@ -3,6 +3,7 @@ export interface TestResult {
   opHash: string;
   output?: string;
   sigDetails?: { input: string; formattedInput: string; bytes: string };
+  confirmationObsOutput?: { level: number; currentConfirmation: number }[];
 }
 
 export interface TestSettings {

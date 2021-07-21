@@ -45,7 +45,8 @@
   };
   let initialLoading = true;
   let openModal = false;
-  let modalData: { title: string; body: string[] } = {
+  let modalData: { id: string; title: string; body: any[] } = {
+    id: "",
     title: "",
     body: []
   };
@@ -370,20 +371,29 @@
   <Modal close={() => (openModal = false)}>
     <div slot="title">{modalData.title}</div>
     <div slot="body">
-      {#each modalData.body as item, index}
-        <div>
-          {#if index === 0}
-            Input
-          {:else if index === 1}
-            Formatted input
-          {:else if index === 2}
-            Bytes
-          {:else if index === 3}
-            Signature
-          {/if}
-        </div>
-        <div>{item}</div>
-      {/each}
+      {#if modalData.id === "sign-payload" || modalData.id === "sign-payload-and-send"}
+        {#each modalData.body as item, index}
+          <div>
+            {#if index === 0}
+              Input
+            {:else if index === 1}
+              Formatted input
+            {:else if index === 2}
+              Bytes
+            {:else if index === 3}
+              Signature
+            {/if}
+          </div>
+          <div>{item}</div>
+        {/each}
+      {:else if modalData.id === "confirmation-observable"}
+        {#each modalData.body as item}
+          <div>Confirmation: {item.currentConfirmation}</div>
+          <div>
+            Level: {item.level}
+          </div>
+        {/each}
+      {/if}
     </div>
   </Modal>
 {/if}

@@ -40,6 +40,7 @@
         // special output for sign-payload
         if (test.id === "sign-payload" || test.id === "sign-payload-and-send") {
           dispatch("open-modal", {
+            id: test.id,
             title: "Signing Result",
             body: [
               result.sigDetails.input,
@@ -50,8 +51,9 @@
           });
         } else if (test.id === "confirmation-observable") {
           dispatch("open-modal", {
+            id: test.id,
             title: "Confirmations through observable",
-            body: result.output
+            body: result.confirmationObsOutput
           });
         }
       } else {
@@ -162,8 +164,11 @@
   {/if}
   {#if test.id === "confirmation-observable" && $store.confirmationObservableTest}
     <div>
-      {$store.confirmationObservableTest.length} confirmation{$store
-        .confirmationObservableTest.length > 1
+      {$store.confirmationObservableTest[
+        $store.confirmationObservableTest.length - 1
+      ].currentConfirmation} confirmation{$store.confirmationObservableTest[
+        $store.confirmationObservableTest.length - 1
+      ].currentConfirmation > 1
         ? "s"
         : ""} (level {$store.confirmationObservableTest[
         $store.confirmationObservableTest.length - 1
