@@ -32,7 +32,11 @@
   let Tezos: TezosToolkit;
   let wallet: BeaconWallet | undefined;
   let userAddress: string;
-  const contractAddress = "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4";
+  const contractAddress = {
+    mainnet: "KT1ShtH2zCrKMuWGRejEd6RAcnePwxBQeMAN",
+    testnet: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4",
+    custom: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4"
+  };
   let contract:
     | ContractAbstraction<Wallet>
     | ContractAbstraction<ContractProvider>;
@@ -104,7 +108,7 @@
     });
     userAddress = await wallet.getPKH();
     // instantiates contract
-    contract = await Tezos.wallet.at(contractAddress);
+    contract = await Tezos.wallet.at(contractAddress[connectedNetwork]);
     tests = initializeTests(Tezos, contract, wallet);
   };
 
@@ -130,7 +134,7 @@
     if (publicKeyHash) {
       userAddress = publicKeyHash;
       // instantiates contract
-      contract = await Tezos.contract.at(contractAddress);
+      contract = await Tezos.contract.at(contractAddress[connectedNetwork]);
       tests = initializeTests(Tezos, contract, wallet);
     }
   };
