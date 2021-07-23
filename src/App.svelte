@@ -34,18 +34,21 @@
   let userAddress: string;
   const contractAddress = {
     mainnet: "KT1ShtH2zCrKMuWGRejEd6RAcnePwxBQeMAN",
-    testnet: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4",
+    florencenet: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4",
+    granadanet: "",
     custom: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4"
   };
   let contract:
     | ContractAbstraction<Wallet>
     | ContractAbstraction<ContractProvider>;
   let defaultMatrixNode = "matrix.papers.tech";
-  let connectedNetwork: "testnet" | "mainnet" | "custom" = "testnet";
+  let connectedNetwork: "florencenet" | "granadanet" | "mainnet" | "custom" =
+    "florencenet";
   let rpcUrl = {
-    testnet: "https://api.tez.ie/rpc/florencenet", //"https://florencenet-tezos.giganode.io",
+    florencenet: "https://api.tez.ie/rpc/florencenet", //"https://florencenet-tezos.giganode.io",
+    granadanet: "https://api.tez.ie/rpc/granadanet", //"https://florencenet-tezos.giganode.io",
     mainnet: "https://api.tez.ie/rpc/mainnet", //"https://mainnet-tezos.giganode.io"
-    custom: ""
+    custom: "https://api.tez.ie/rpc/granadanet"
   };
   let initialLoading = true;
   let openModal = false;
@@ -62,8 +65,10 @@
 
   const initBeacon = async () => {
     let networkType: NetworkType;
-    if (connectedNetwork === "testnet") {
+    if (connectedNetwork === "florencenet") {
       networkType = NetworkType.FLORENCENET;
+    } else if (connectedNetwork === "granadanet") {
+      networkType = NetworkType.GRANADANET;
     } else if (connectedNetwork === "mainnet") {
       networkType = NetworkType.MAINNET;
     } else if (connectedNetwork === "custom") {
@@ -146,10 +151,15 @@
         connectedNetwork = "mainnet";
         Tezos = new TezosToolkit(rpcUrl.mainnet);
         break;
-      case "testnet":
+      case "florencenet":
         openCustomNetwork = false;
-        connectedNetwork = "testnet";
-        Tezos = new TezosToolkit(rpcUrl.testnet);
+        connectedNetwork = "florencenet";
+        Tezos = new TezosToolkit(rpcUrl.florencenet);
+        break;
+      case "granadanet":
+        openCustomNetwork = false;
+        connectedNetwork = "granadanet";
+        Tezos = new TezosToolkit(rpcUrl.granadanet);
         break;
       case "custom":
         openCustomMatrixNode = false;
@@ -174,7 +184,7 @@
         defaultMatrixNode === "matrix.papers.tech";
         if (!rpcUrl.custom) {
           // in case the user did not provide any custom network URL
-          connectedNetwork = "testnet";
+          connectedNetwork = "granadanet";
           Tezos = new TezosToolkit(rpcUrl.testnet);
         }
         break;
@@ -318,7 +328,8 @@
                 on:change={changeNetwork}
                 on:blur={changeNetwork}
               >
-                <option value="testnet">Testnet</option>
+                <option value="florencenet">Florencenet</option>
+                <option value="granadanet">Granadanet</option>
                 <option value="mainnet">Mainnet</option>
                 <option value="custom">Custom</option>
               </select>
