@@ -25,8 +25,9 @@
   import type { TestSettings } from "./types";
   import Modal from "./Modal.svelte";
 
-  // https://ide.ligolang.org/p/LdCqNZ-G6rcKYkrbtmmD2A
+  // https://ide.ligolang.org/p/RL93C86hftTTCNGU0ykLMw
   // https://better-call.dev/florencenet/KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4/operations
+  // https://better-call.dev/granadanet/KT1T836HqhBu9waqmknStVDCXu2WogZtzsNz/operations
 
   let tests: TestSettings[] = [];
   let Tezos: TezosToolkit;
@@ -35,7 +36,7 @@
   const contractAddress = {
     mainnet: "KT1ShtH2zCrKMuWGRejEd6RAcnePwxBQeMAN",
     florencenet: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4",
-    granadanet: "",
+    granadanet: "KT1T836HqhBu9waqmknStVDCXu2WogZtzsNz",
     custom: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4"
   };
   let contract:
