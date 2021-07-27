@@ -44,7 +44,7 @@
     | ContractAbstraction<ContractProvider>;
   let defaultMatrixNode = "matrix.papers.tech";
   let connectedNetwork: "florencenet" | "granadanet" | "mainnet" | "custom" =
-    "florencenet";
+    "granadanet";
   let rpcUrl = {
     florencenet: "https://api.tez.ie/rpc/florencenet", //"https://florencenet-tezos.giganode.io",
     granadanet: "https://api.tez.ie/rpc/granadanet", //"https://florencenet-tezos.giganode.io",

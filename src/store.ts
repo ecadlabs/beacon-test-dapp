@@ -1,5 +1,4 @@
 import { writable } from "svelte/store";
-import type { TezosToolkit } from "@taquito/taquito";
 
 interface State {
   confirmationObservableTest:

@@ -11,6 +11,7 @@ import { char2Bytes } from "@taquito/utils";
 import { RequestSignPayloadInput, SigningType } from "@airgap/beacon-sdk";
 import { TestSettings, TestResult } from "./types";
 import store from "./store";
+import contractToOriginate from "./contractToOriginate";
 
 const sendTez = async (Tezos: TezosToolkit): Promise<TestResult> => {
   let opHash = "";
@@ -146,11 +147,10 @@ const originateSuccess = async (Tezos: TezosToolkit): Promise<TestResult> => {
   let opHash = "";
   try {
     // fetches contract code
-    // https://better-call.dev/florencenet/KT1RH3gjrnrarQ4qMgxotUxLocX8TM3Fconm/operations
-    const code = (await Tezos.wallet.at("KT1RH3gjrnrarQ4qMgxotUxLocX8TM3Fconm"))
-      .script.code;
     const storage = new MichelsonMap();
-    const op = await Tezos.wallet.originate({ code, storage }).send();
+    const op = await Tezos.wallet
+      .originate({ code: contractToOriginate, storage })
+      .send();
     opHash = op.opHash;
     await op.confirmation();
     return { success: true, opHash };
