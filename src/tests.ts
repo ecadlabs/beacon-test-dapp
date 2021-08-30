@@ -7,11 +7,14 @@ import {
   ContractProvider
 } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { char2Bytes } from "@taquito/utils";
+import { char2Bytes, buf2hex, hex2buf } from "@taquito/utils";
 import { RequestSignPayloadInput, SigningType } from "@airgap/beacon-sdk";
+import { get } from "svelte/store";
+import blake from "blakejs";
 import { TestSettings, TestResult } from "./types";
 import store from "./store";
 import contractToOriginate from "./contractToOriginate";
+import localStore from "./store";
 
 const sendTez = async (Tezos: TezosToolkit): Promise<TestResult> => {
   let opHash = "";
@@ -367,6 +370,42 @@ const tryConfirmationObservable = async (
   }
 };
 
+const permit = async (Tezos: TezosToolkit, wallet: BeaconWallet) => {
+  const store = get(localStore);
+
+  try {
+    const contractAddress = "KT1ShFVQPoLvekQu21pvuJst7cG1TjtnzdvW";
+    const contract = await Tezos.wallet.at(contractAddress);
+    const mintParam: any = contract.methods
+      .mint(store.userAddress, 100)
+      .toTransferParams().parameter?.value;
+    const mintParamType = contract.entrypoints.entrypoints["mint"];
+    const rawPacked = await Tezos.rpc.packData({
+      data: mintParam,
+      type: mintParamType
+    });
+    const packedParam = rawPacked.packed;
+    const paramHash =
+      "05" +
+      buf2hex(blake.blake2b(hex2buf(packedParam), null, 32).buffer as Buffer);
+    const sig = await wallet.client.requestSignPayload({
+      signingType: SigningType.MICHELINE,
+      payload: paramHash,
+      sourceAddress: store.userAddress
+    });
+    const { publicKey } = await wallet.client.getActiveAccount();
+    const permitMethodOp = await contract.methods
+      .permit([{ 0: publicKey, 1: sig.signature, 2: paramHash }])
+      .send();
+    await permitMethodOp.confirmation();
+    console.log(permitMethodOp.opHash);
+  } catch (error) {
+    console.error(error);
+  }
+
+  return { success: false, opHash: "" };
+};
+
 export default (
   Tezos: TezosToolkit,
   contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>,
@@ -493,6 +532,14 @@ export default (
       "This test updates the underlying contract and subscribes to 3 confirmations",
     run: () =>
       tryConfirmationObservable(contract as ContractAbstraction<Wallet>),
+    showExecutionTime: false,
+    inputRequired: false
+  },
+  {
+    id: "permit",
+    name: "Permit contract",
+    description: "This test implements TZIP-17",
+    run: () => permit(Tezos, wallet),
     showExecutionTime: false,
     inputRequired: false
   }

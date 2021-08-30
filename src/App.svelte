@@ -24,6 +24,7 @@
   import initializeTests from "./tests";
   import type { TestSettings } from "./types";
   import Modal from "./Modal.svelte";
+  import store from "./store";
 
   // https://ide.ligolang.org/p/RL93C86hftTTCNGU0ykLMw
   // https://better-call.dev/florencenet/KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4/operations
@@ -113,6 +114,7 @@
       }
     });
     userAddress = await wallet.getPKH();
+    store.updateUserAddress(userAddress);
     // instantiates contract
     contract = await Tezos.wallet.at(contractAddress[connectedNetwork]);
     tests = initializeTests(Tezos, contract, wallet);
@@ -186,7 +188,7 @@
         if (!rpcUrl.custom) {
           // in case the user did not provide any custom network URL
           connectedNetwork = "granadanet";
-          Tezos = new TezosToolkit(rpcUrl.testnet);
+          Tezos = new TezosToolkit(rpcUrl.granadanet);
         }
         break;
     }
