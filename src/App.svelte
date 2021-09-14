@@ -48,8 +48,8 @@
     "granadanet";
   let rpcUrl = {
     florencenet: "https://api.tez.ie/rpc/florencenet", //"https://florencenet-tezos.giganode.io",
-    granadanet: "https://api.tez.ie/rpc/granadanet", //"https://florencenet-tezos.giganode.io",
-    mainnet: "https://api.tez.ie/rpc/mainnet", //"https://mainnet-tezos.giganode.io"
+    granadanet: "https://granadanet.api.tez.ie", //"https://florencenet-tezos.giganode.io",
+    mainnet: "https://mainnet.api.tez.ie", //"https://mainnet-tezos.giganode.io"
     custom: "https://api.tez.ie/rpc/granadanet"
   };
   let initialLoading = true;

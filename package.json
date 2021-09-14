@@ -45,7 +45,7 @@
     "@ledgerhq/hw-transport-u2f": "^5.36.0-deprecated",
     "@taquito/beacon-wallet": "10.1.0",
     "@taquito/ledger-signer": "10.1.0",
-    "@taquito/taquito": "10.1.0",
+    "@taquito/taquito": "^10.1.0-methodsObject.1",
     "@taquito/utils": "10.1.0",
     "blakejs": "^1.1.1",
     "serve": "^11.3.2"

@@ -51,7 +51,17 @@ const sendComplexParam = async (
 ): Promise<TestResult> => {
   let opHash = "";
   try {
-    const op = await contract.methods.complex_param(5, "Taquito").send();
+    //const op = await contract.methods.complex_param(5, "Taquito").send();
+    console.log(
+      JSON.stringify(
+        contract.methodsObject.complex_param().getSignature(),
+        null,
+        2
+      )
+    );
+    const op = await contract.methodsObject
+      .complex_param({ 0: 5, 1: "Taquito" })
+      .send();
     opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
     return { success: true, opHash };
@@ -373,22 +383,82 @@ const tryConfirmationObservable = async (
 const permit = async (Tezos: TezosToolkit, wallet: BeaconWallet) => {
   const store = get(localStore);
 
+  const expectedBytes =
+    "05070707070a00000004f5f466ab0a0000001601c6ac120153e9a6f3daa3ecdfbf0bb13f529f832500070700000a0000002105a6a36a686b864c75b0cf59816d24c8649f6f6fb0ea10c4beaed8988d1d55edef";
+
   try {
     const contractAddress = "KT1ShFVQPoLvekQu21pvuJst7cG1TjtnzdvW";
     const contract = await Tezos.wallet.at(contractAddress);
+    // hashes the parameter for the contract call
     const mintParam: any = contract.methods
       .mint(store.userAddress, 100)
       .toTransferParams().parameter?.value;
     const mintParamType = contract.entrypoints.entrypoints["mint"];
+    // packs the entrypoint call
     const rawPacked = await Tezos.rpc.packData({
       data: mintParam,
       type: mintParamType
     });
     const packedParam = rawPacked.packed;
-    const paramHash =
-      "05" +
-      buf2hex(blake.blake2b(hex2buf(packedParam), null, 32).buffer as Buffer);
-    const sig = await wallet.client.requestSignPayload({
+    const paramHash = packedParam;
+    /*"05" +
+      buf2hex(blake.blake2b(hex2buf(packedParam), null, 32).buffer as Buffer);*/
+    // hashes the parameter for the signature
+    const chainId = await Tezos.rpc.getChainId();
+    const contractStorage: any = await contract.storage();
+    const counter = contractStorage.counter;
+    const sigParamData: any = {
+      prim: "Pair",
+      args: [
+        {
+          prim: "Pair",
+          args: [
+            {
+              string: chainId
+            },
+            {
+              string: contractAddress
+            }
+          ]
+        },
+        {
+          prim: "Pair",
+          args: [
+            {
+              int: counter
+            },
+            {
+              string: paramHash
+            }
+          ]
+        }
+      ]
+    };
+    const sigParamType = {
+      prim: "pair",
+      args: [
+        {
+          prim: "pair",
+          args: [
+            {
+              prim: "chain_id"
+            },
+            { prim: "address" }
+          ]
+        },
+        {
+          prim: "pair",
+          args: [{ prim: "nat" }, { prim: "string" }]
+        }
+      ]
+    };
+    const sigParamPacked = await Tezos.rpc.packData({
+      data: sigParamData,
+      type: sigParamType
+    });
+    console.log(sigParamPacked.packed, paramHash);
+    // signs the hash
+    /*const sig = await wallet.client.requestSignPayload({
       signingType: SigningType.MICHELINE,
       payload: paramHash,
       sourceAddress: store.userAddress
@@ -398,7 +468,7 @@ const permit = async (Tezos: TezosToolkit, wallet: BeaconWallet) => {
       .permit([{ 0: publicKey, 1: sig.signature, 2: paramHash }])
       .send();
     await permitMethodOp.confirmation();
-    console.log(permitMethodOp.opHash);
+    console.log(permitMethodOp.opHash);*/
   } catch (error) {
     console.error(error);
   }

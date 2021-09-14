@@ -76,7 +76,9 @@
   }
 
   #test-execution {
-    text-align: right;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .link-icon {
@@ -209,6 +211,12 @@
             fee: "800"
           })}>Default</button
       >
+    {/if}
+    <!-- BROKEN FEATURE UNDER TESTING -->
+    {#if test.id === "contract-call-complex-type" || test.id === "permit"}
+      <span style="font-size:0.8rem;color:red">(Broken, under testing)</span>
+    {:else}
+      <span />
     {/if}
     <button
       class={`button blue ${loading ? "loading" : ""}`}
