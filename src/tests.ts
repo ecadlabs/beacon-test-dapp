@@ -51,8 +51,8 @@ const sendComplexParam = async (
 ): Promise<TestResult> => {
   let opHash = "";
   try {
-    //const op = await contract.methods.complex_param(5, "Taquito").send();
-    console.log(
+    const op = await contract.methods.complex_param(5, "Taquito").send();
+    /* console.log(
       JSON.stringify(
         contract.methodsObject.complex_param().getSignature(),
         null,
@@ -61,7 +61,7 @@ const sendComplexParam = async (
     );
     const op = await contract.methodsObject
       .complex_param({ 0: 5, 1: "Taquito" })
-      .send();
+      .send(); */
     opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
     return { success: true, opHash };
@@ -261,7 +261,7 @@ const signPayload = async (
   const formattedInput = `Tezos Signed Message: beacon-test-dapp.netlify.app/ ${new Date().toISOString()} ${input}`;
   const bytes = "05" + char2Bytes(formattedInput);
   const payload: RequestSignPayloadInput = {
-    signingType: SigningType.MICHELINE,
+    signingType: SigningType.RAW,
     payload: bytes,
     sourceAddress: userAddress
   };
