@@ -252,10 +252,10 @@ const signPayload = async (
 ): Promise<TestResult> => {
   const userAddress = await wallet.getPKH();
   const formattedInput = `Tezos Signed Message: beacon-test-dapp.netlify.app/ ${new Date().toISOString()} ${input}`;
-  const bytes = "05" + char2Bytes(formattedInput);
+  const bytes = char2Bytes(formattedInput);
   const payload: RequestSignPayloadInput = {
     signingType: SigningType.RAW,
-    payload: bytes,
+    payload: "0x05" + "01" + char2Bytes(bytes.length.toString()) + bytes,
     sourceAddress: userAddress
   };
   try {
