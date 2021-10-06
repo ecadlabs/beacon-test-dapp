@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { fly } from "svelte/transition";
   import { expoInOut } from "svelte/easing";
   import { TezosToolkit } from "@taquito/taquito";
@@ -198,6 +198,8 @@
     Tezos = new TezosToolkit(rpcUrl[connectedNetwork]);
     initialLoading = false;
   });
+
+  onDestroy(disconnectWallet);
 </script>
 
 <style lang="scss">

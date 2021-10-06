@@ -51,17 +51,10 @@ const sendComplexParam = async (
 ): Promise<TestResult> => {
   let opHash = "";
   try {
-    const op = await contract.methods.complex_param(5, "Taquito").send();
-    /* console.log(
-      JSON.stringify(
-        contract.methodsObject.complex_param().getSignature(),
-        null,
-        2
-      )
-    );
+    // const op = await contract.methods.complex_param(5, "Taquito").send();
     const op = await contract.methodsObject
       .complex_param({ 0: 5, 1: "Taquito" })
-      .send(); */
+      .send();
     opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
     return { success: true, opHash };
@@ -274,6 +267,7 @@ const signPayload = async (
       sigDetails: { input, formattedInput, bytes }
     };
   } catch (error) {
+    console.log(error);
     return { success: false, opHash: "", output: JSON.stringify(error) };
   }
 };

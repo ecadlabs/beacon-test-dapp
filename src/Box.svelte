@@ -213,7 +213,7 @@
       >
     {/if}
     <!-- BROKEN FEATURE UNDER TESTING -->
-    {#if test.id === "contract-call-complex-type" || test.id === "permit"}
+    {#if test.id === "permit"}
       <span style="font-size:0.8rem;color:red">(Broken, under testing)</span>
     {:else}
       <span />
