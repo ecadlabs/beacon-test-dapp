@@ -29,6 +29,7 @@
   // https://ide.ligolang.org/p/RL93C86hftTTCNGU0ykLMw
   // https://better-call.dev/florencenet/KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4/operations
   // https://better-call.dev/granadanet/KT1T836HqhBu9waqmknStVDCXu2WogZtzsNz/operations
+  // https://better-call.dev/hangzhounet/KT1Rvnaup12aB4Jtmv5FauaWozXcuZmGn73E/operations
 
   let tests: TestSettings[] = [];
   let Tezos: TezosToolkit;
@@ -38,19 +39,25 @@
     mainnet: "KT1ShtH2zCrKMuWGRejEd6RAcnePwxBQeMAN",
     florencenet: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4",
     granadanet: "KT1T836HqhBu9waqmknStVDCXu2WogZtzsNz",
-    custom: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4"
+    hangzhounet: "KT1Rvnaup12aB4Jtmv5FauaWozXcuZmGn73E",
+    custom: "KT1Rvnaup12aB4Jtmv5FauaWozXcuZmGn73E"
   };
   let contract:
     | ContractAbstraction<Wallet>
     | ContractAbstraction<ContractProvider>;
   let defaultMatrixNode = "matrix.papers.tech";
-  let connectedNetwork: "florencenet" | "granadanet" | "mainnet" | "custom" =
-    "granadanet";
+  let connectedNetwork:
+    | "florencenet"
+    | "granadanet"
+    | "hangzhounet"
+    | "mainnet"
+    | "custom" = "hangzhounet";
   let rpcUrl = {
     florencenet: "https://api.tez.ie/rpc/florencenet", //"https://florencenet-tezos.giganode.io",
     granadanet: "https://granadanet.api.tez.ie", //"https://florencenet-tezos.giganode.io",
+    hangzhounet: "https://hangzhounet.api.tez.ie", //"https://hangzhounet-tezos.giganode.io",
     mainnet: "https://mainnet.api.tez.ie", //"https://mainnet-tezos.giganode.io"
-    custom: "https://api.tez.ie/rpc/granadanet"
+    custom: "https://hangzhounet.api.tez.ie"
   };
   let initialLoading = true;
   let openModal = false;
@@ -71,6 +78,8 @@
       networkType = NetworkType.FLORENCENET;
     } else if (connectedNetwork === "granadanet") {
       networkType = NetworkType.GRANADANET;
+    } else if (connectedNetwork === "hangzhounet") {
+      networkType = NetworkType.HANGZHOUNET;
     } else if (connectedNetwork === "mainnet") {
       networkType = NetworkType.MAINNET;
     } else if (connectedNetwork === "custom") {
@@ -164,6 +173,11 @@
         connectedNetwork = "granadanet";
         Tezos = new TezosToolkit(rpcUrl.granadanet);
         break;
+      case "hangzhounet":
+        openCustomNetwork = false;
+        connectedNetwork = "hangzhounet";
+        Tezos = new TezosToolkit(rpcUrl.hangzhounet);
+        break;
       case "custom":
         openCustomMatrixNode = false;
         openCustomNetwork = true;
@@ -187,8 +201,8 @@
         defaultMatrixNode === "matrix.papers.tech";
         if (!rpcUrl.custom) {
           // in case the user did not provide any custom network URL
-          connectedNetwork = "granadanet";
-          Tezos = new TezosToolkit(rpcUrl.granadanet);
+          connectedNetwork = "hangzhounet";
+          Tezos = new TezosToolkit(rpcUrl.hangzhounet);
         }
         break;
     }
@@ -333,9 +347,10 @@
                 on:change={changeNetwork}
                 on:blur={changeNetwork}
               >
-                <option value="florencenet">Florencenet</option>
-                <option value="granadanet">Granadanet</option>
+                <option value="hangzhounet">Hangzhounet</option>
                 <option value="mainnet">Mainnet</option>
+                <option value="granadanet">Granadanet</option>
+                <option value="florencenet">Florencenet</option>
                 <option value="custom">Custom</option>
               </select>
             </label>
