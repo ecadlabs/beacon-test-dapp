@@ -29,7 +29,7 @@
   // https://ide.ligolang.org/p/RL93C86hftTTCNGU0ykLMw
   // https://better-call.dev/florencenet/KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4/operations
   // https://better-call.dev/granadanet/KT1T836HqhBu9waqmknStVDCXu2WogZtzsNz/operations
-  // https://better-call.dev/hangzhounet/KT1Rvnaup12aB4Jtmv5FauaWozXcuZmGn73E/operations
+  // https://better-call.dev/hangzhounet/KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg/operations
 
   let tests: TestSettings[] = [];
   let Tezos: TezosToolkit;
@@ -39,8 +39,8 @@
     mainnet: "KT1ShtH2zCrKMuWGRejEd6RAcnePwxBQeMAN",
     florencenet: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4",
     granadanet: "KT1T836HqhBu9waqmknStVDCXu2WogZtzsNz",
-    hangzhounet: "KT1Rvnaup12aB4Jtmv5FauaWozXcuZmGn73E",
-    custom: "KT1Rvnaup12aB4Jtmv5FauaWozXcuZmGn73E"
+    hangzhounet: "KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg",
+    custom: "KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg"
   };
   let contract:
     | ContractAbstraction<Wallet>
