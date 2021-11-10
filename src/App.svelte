@@ -45,7 +45,7 @@
   let contract:
     | ContractAbstraction<Wallet>
     | ContractAbstraction<ContractProvider>;
-  let defaultMatrixNode = "matrix.papers.tech";
+  let defaultMatrixNode = "beacon-node-1.sky.papers.tech";
   let connectedNetwork:
     | "florencenet"
     | "granadanet"
@@ -189,7 +189,7 @@
     switch (event.target.value) {
       case "default":
         openCustomMatrixNode = false;
-        defaultMatrixNode === "matrix.papers.tech";
+        defaultMatrixNode === "beacon-node-1.sky.papers.tech";
         break;
       case "taquito":
         openCustomMatrixNode = false;
@@ -198,7 +198,7 @@
       case "custom":
         openCustomNetwork = false;
         openCustomMatrixNode = true;
-        defaultMatrixNode === "matrix.papers.tech";
+        defaultMatrixNode === "beacon-node-1.sky.papers.tech";
         if (!rpcUrl.custom) {
           // in case the user did not provide any custom network URL
           connectedNetwork = "hangzhounet";
