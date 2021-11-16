@@ -357,17 +357,21 @@ const setTransactionLimits = async (
 ): Promise<TestResult> => {
   let opHash = "";
   try {
+    let op;
     if (isNaN(+fee) || isNaN(+storageLimit) || isNaN(+gasLimit)) {
-      throw "One of the parameters is not a number";
+      // if one of the parameters is missing, transaction is sent as is
+      op = await contract.methods.simple_param(5).send();
+    } else {
+      op = await contract.methods.simple_param(5).send({
+        storageLimit: +storageLimit,
+        gasLimit: +gasLimit,
+        fee: +fee
+      });
     }
 
-    const op = await contract.methods.simple_param(5).send({
-      storageLimit: +storageLimit,
-      gasLimit: +gasLimit,
-      fee: +fee
-    });
     opHash = op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"];
     await op.confirmation();
+    console.log("Operation successful with op hash:", opHash);
     return { success: true, opHash };
   } catch (error) {
     console.log(error);

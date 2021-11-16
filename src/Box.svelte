@@ -32,6 +32,7 @@
       } else {
         result = await test.run();
       }
+      console.log(result);
       if (result && result.success === true) {
         const t2 = performance.now();
         executionTime = t2 - t1;
