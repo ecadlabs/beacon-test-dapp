@@ -25,6 +25,7 @@
       if (
         test.id === "sign-payload" ||
         test.id === "sign-payload-and-send" ||
+        test.id === "verify-signature" ||
         test.id === "set-transaction-limits"
       ) {
         result = await test.run(input);
@@ -38,7 +39,11 @@
         successOp = true;
         opHash = result.opHash;
         // special output for sign-payload
-        if (test.id === "sign-payload" || test.id === "sign-payload-and-send") {
+        if (
+          test.id === "sign-payload" ||
+          test.id === "sign-payload-and-send" ||
+          test.id === "verify-signature"
+        ) {
           dispatch("open-modal", {
             id: test.id,
             title: "Signing Result",

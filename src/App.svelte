@@ -22,7 +22,7 @@
   import TransportU2F from "@ledgerhq/hw-transport-u2f";
   import Box from "./Box.svelte";
   import initializeTests from "./tests";
-  import type { TestSettings } from "./types";
+  import { TestSettings, AvailableNetwork } from "./types";
   import Modal from "./Modal.svelte";
   import store from "./store";
 
@@ -40,22 +40,19 @@
     florencenet: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4",
     granadanet: "KT1T836HqhBu9waqmknStVDCXu2WogZtzsNz",
     hangzhounet: "KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg",
+    idiazabalnet: "KT1HJfmZy3b31ZH8CgduXunHErPyGi3crpjC",
     custom: "KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg"
   };
   let contract:
     | ContractAbstraction<Wallet>
     | ContractAbstraction<ContractProvider>;
   let defaultMatrixNode = "beacon-node-1.sky.papers.tech";
-  let connectedNetwork:
-    | "florencenet"
-    | "granadanet"
-    | "hangzhounet"
-    | "mainnet"
-    | "custom" = "hangzhounet";
+  let connectedNetwork = AvailableNetwork.HANGZHOUNET;
   let rpcUrl = {
     florencenet: "https://api.tez.ie/rpc/florencenet", //"https://florencenet-tezos.giganode.io",
     granadanet: "https://granadanet.api.tez.ie", //"https://florencenet-tezos.giganode.io",
     hangzhounet: "https://hangzhounet.api.tez.ie", //"https://hangzhounet-tezos.giganode.io",
+    idiazabalnet: "https://idiazabalnet.ecadinfra.com/",
     mainnet: "https://mainnet.api.tez.ie", //"https://mainnet-tezos.giganode.io"
     custom: "https://hangzhounet.api.tez.ie"
   };
@@ -84,6 +81,8 @@
       networkType = NetworkType.MAINNET;
     } else if (connectedNetwork === "custom") {
       networkType = NetworkType.CUSTOM;
+    } else if (connectedNetwork === "idiazabalnet") {
+      networkType = NetworkType.IDIAZABALNET;
     }
 
     console.log(connectedNetwork, networkType, defaultMatrixNode);
@@ -160,23 +159,28 @@
     switch (event.target.value) {
       case "mainnet":
         openCustomNetwork = false;
-        connectedNetwork = "mainnet";
+        connectedNetwork = AvailableNetwork.MAINNET;
         Tezos = new TezosToolkit(rpcUrl.mainnet);
         break;
       case "florencenet":
         openCustomNetwork = false;
-        connectedNetwork = "florencenet";
+        connectedNetwork = AvailableNetwork.FLORENCENET;
         Tezos = new TezosToolkit(rpcUrl.florencenet);
         break;
       case "granadanet":
         openCustomNetwork = false;
-        connectedNetwork = "granadanet";
+        connectedNetwork = AvailableNetwork.GRANADANET;
         Tezos = new TezosToolkit(rpcUrl.granadanet);
         break;
       case "hangzhounet":
         openCustomNetwork = false;
-        connectedNetwork = "hangzhounet";
+        connectedNetwork = AvailableNetwork.HANGZHOUNET;
         Tezos = new TezosToolkit(rpcUrl.hangzhounet);
+        break;
+      case "idiazabalnet":
+        openCustomNetwork = false;
+        connectedNetwork = AvailableNetwork.IDIAZABALNET;
+        Tezos = new TezosToolkit(rpcUrl.idiazabalnet);
         break;
       case "custom":
         openCustomMatrixNode = false;
@@ -201,7 +205,7 @@
         defaultMatrixNode === "beacon-node-1.sky.papers.tech";
         if (!rpcUrl.custom) {
           // in case the user did not provide any custom network URL
-          connectedNetwork = "hangzhounet";
+          connectedNetwork = AvailableNetwork.HANGZHOUNET;
           Tezos = new TezosToolkit(rpcUrl.hangzhounet);
         }
         break;
@@ -347,11 +351,14 @@
                 on:change={changeNetwork}
                 on:blur={changeNetwork}
               >
-                <option value="hangzhounet">Hangzhounet</option>
-                <option value="mainnet">Mainnet</option>
-                <option value="granadanet">Granadanet</option>
-                <option value="florencenet">Florencenet</option>
-                <option value="custom">Custom</option>
+                {#each Object.values(AvailableNetwork) as network}
+                  <option
+                    value={network}
+                    selected={connectedNetwork === network}
+                  >
+                    {network[0].toUpperCase() + network.slice(1)}
+                  </option>
+                {/each}
               </select>
             </label>
             <label>
@@ -406,7 +413,7 @@
   <Modal close={() => (openModal = false)}>
     <div slot="title">{modalData.title}</div>
     <div slot="body">
-      {#if modalData.id === "sign-payload" || modalData.id === "sign-payload-and-send"}
+      {#if modalData.id === "sign-payload" || modalData.id === "sign-payload-and-send" || modalData.id === "verify-signature"}
         {#each modalData.body as item, index}
           <div>
             {#if index === 0}

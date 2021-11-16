@@ -15,3 +15,12 @@ export interface TestSettings {
   inputRequired: boolean;
   inputType?: "string" | "set-limits";
 }
+
+export enum AvailableNetwork {
+  "FLORENCENET" = "florencenet",
+  "GRANADANET" = "granadanet",
+  "HANGZHOUNET" = "hangzhounet",
+  "IDIAZABALNET" = "idiazabalnet",
+  "MAINNET" = "mainnet",
+  "CUSTOM" = "custom"
+}

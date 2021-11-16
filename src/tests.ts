@@ -7,7 +7,7 @@ import {
   ContractProvider
 } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
-import { char2Bytes, buf2hex, hex2buf } from "@taquito/utils";
+import { char2Bytes, verifySignature } from "@taquito/utils";
 import { RequestSignPayloadInput, SigningType } from "@airgap/beacon-sdk";
 import { get } from "svelte/store";
 import blake from "blakejs";
@@ -308,6 +308,47 @@ const signPayloadAndSend = async (
   }
 };
 
+const verifySignatureWithTaquito = async (
+  input: string,
+  wallet: BeaconWallet,
+  contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>
+): Promise<TestResult> => {
+  if (!input) throw "No input provided";
+
+  const userAddress = await wallet.getPKH();
+  const formattedInput = `Tezos Signed Message: beacon-test-dapp.netlify.app/ ${new Date().toISOString()} ${input}`;
+  const bytes = "05" + char2Bytes(formattedInput);
+  const payload: RequestSignPayloadInput = {
+    signingType: SigningType.MICHELINE,
+    payload: bytes,
+    sourceAddress: userAddress
+  };
+  try {
+    const signedPayload = await wallet.client.requestSignPayload(payload);
+    // gets user's public key
+    const activeAccount = await wallet.client.getActiveAccount();
+    const publicKey = activeAccount.publicKey;
+    // verifies signature
+    const isSignatureCorrect = verifySignature(
+      bytes,
+      publicKey,
+      signedPayload.signature
+    );
+    if (isSignatureCorrect) {
+      return {
+        success: true,
+        opHash: "",
+        output: signedPayload.signature,
+        sigDetails: { input, formattedInput, bytes }
+      };
+    } else {
+      throw "Forged signature is incorrect";
+    }
+  } catch (error) {
+    return { success: false, opHash: "", output: JSON.stringify(error) };
+  }
+};
+
 const setTransactionLimits = async (
   contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>,
   fee: string,
@@ -569,6 +610,16 @@ export default (
     description:
       "This test signs the provided payload and sends it to the contract to check it",
     run: input => signPayloadAndSend(input.text, wallet, contract),
+    showExecutionTime: false,
+    inputRequired: true,
+    inputType: "string"
+  },
+  {
+    id: "verify-signature",
+    name: "Verify a provided signature",
+    description:
+      "This test signs the provided payload and uses Taquito to verify the signature",
+    run: input => verifySignatureWithTaquito(input.text, wallet, contract),
     showExecutionTime: false,
     inputRequired: true,
     inputType: "string"
