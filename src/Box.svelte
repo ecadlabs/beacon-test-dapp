@@ -212,9 +212,9 @@
         on:click={() =>
           (input = {
             text: "",
-            storageLimit: "200",
-            gasLimit: "8000",
-            fee: "800"
+            storageLimit: "0",
+            gasLimit: "1320",
+            fee: "441"
           })}>Default</button
       >
     {/if}
