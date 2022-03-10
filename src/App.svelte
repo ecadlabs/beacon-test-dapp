@@ -1,7 +1,5 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
-  import { fly } from "svelte/transition";
-  import { expoInOut } from "svelte/easing";
   import { TezosToolkit } from "@taquito/taquito";
   import type {
     ContractAbstraction,
@@ -25,6 +23,7 @@
   import { TestSettings, AvailableNetwork } from "./types";
   import Modal from "./Modal.svelte";
   import store from "./store";
+  import Header from "./Header.svelte";
 
   // https://ide.ligolang.org/p/RL93C86hftTTCNGU0ykLMw
   // https://better-call.dev/florencenet/KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4/operations
@@ -68,9 +67,35 @@
   let openCustomMatrixNode = false;
   let customMatrixNode = defaultMatrixNode;
   let disableDefaultEvents = true;
+  let networkType: NetworkType;
+
+  const createNewWallet = () => {
+    return new BeaconWallet(
+      disableDefaultEvents
+        ? {
+            name: "Beacon Test Dapp",
+            matrixNodes: [defaultMatrixNode] as any,
+            preferredNetwork: networkType,
+            disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
+            eventHandlers: {
+              // To keep the pairing alert, we have to add the following default event handlers back
+              [BeaconEvent.PAIR_INIT]: {
+                handler: defaultEventCallbacks.PAIR_INIT
+              },
+              [BeaconEvent.PAIR_SUCCESS]: {
+                handler: defaultEventCallbacks.PAIR_SUCCESS
+              }
+            }
+          }
+        : {
+            name: "Beacon Test Dapp",
+            matrixNodes: [defaultMatrixNode] as any,
+            preferredNetwork: networkType
+          }
+    );
+  };
 
   const initBeacon = async () => {
-    let networkType: NetworkType;
     if (connectedNetwork === "florencenet") {
       networkType = NetworkType.FLORENCENET;
     } else if (connectedNetwork === "granadanet") {
@@ -89,29 +114,7 @@
 
     if (!wallet) {
       // instantiates the wallet
-      wallet = new BeaconWallet(
-        disableDefaultEvents
-          ? {
-              name: "Beacon Test Dapp",
-              matrixNodes: [defaultMatrixNode] as any,
-              preferredNetwork: networkType,
-              disableDefaultEvents: true, // Disable all events / UI. This also disables the pairing alert.
-              eventHandlers: {
-                // To keep the pairing alert, we have to add the following default event handlers back
-                [BeaconEvent.PAIR_INIT]: {
-                  handler: defaultEventCallbacks.PAIR_INIT
-                },
-                [BeaconEvent.PAIR_SUCCESS]: {
-                  handler: defaultEventCallbacks.PAIR_SUCCESS
-                }
-              }
-            }
-          : {
-              name: "Beacon Test Dapp",
-              matrixNodes: [defaultMatrixNode] as any,
-              preferredNetwork: networkType
-            }
-      );
+      wallet = createNewWallet();
       Tezos.setWalletProvider(wallet);
     }
 
@@ -130,6 +133,9 @@
 
   const disconnectWallet = () => {
     if (wallet) {
+      wallet.client.clearActiveAccount();
+      wallet.client.removeAllAccounts();
+      wallet.client.removeAllPeers();
       wallet.client.destroy();
       wallet = undefined;
       userAddress = undefined;
@@ -213,11 +219,12 @@
   };
 
   onMount(async () => {
+    // this creates a temporary instance of the wallet to clean up previous Beacon configuration
+    wallet = createNewWallet();
+    disconnectWallet();
     Tezos = new TezosToolkit(rpcUrl[connectedNetwork]);
     initialLoading = false;
   });
-
-  onDestroy(disconnectWallet);
 </script>
 
 <style lang="scss">
@@ -226,20 +233,6 @@
     height: 100vh;
     display: grid;
     grid-template-rows: 10% 85% 5%;
-  }
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 120px;
-    width: 100%;
-    background-color: white;
-    z-index: 800;
-
-    .title {
-      font-size: 2rem;
-      margin-left: 20px;
-    }
   }
 
   main {
@@ -278,34 +271,11 @@
 
 <div class="container">
   {#if userAddress}
-    <header>
-      <div class="title">Beacon Test Dapp</div>
-      <div
-        class="box address"
-        in:fly={{
-          x: -2000,
-          duration: 2000,
-          delay: (tests.length + 1) * 200,
-          easing: expoInOut
-        }}
-      >
-        <div>
-          Connected as {userAddress.slice(0, 7)}...{userAddress.slice(-7)}
-        </div>
-        <div>
-          <button
-            class="blue"
-            on:click={() => {
-              if (wallet) {
-                disconnectWallet();
-              } else {
-                userAddress = "";
-              }
-            }}>Disconnect</button
-          >
-        </div>
-      </div>
-    </header>
+    <Header
+      delay={tests.length + 1}
+      {wallet}
+      on:disconnect-wallet={disconnectWallet}
+    />
   {:else}
     <div />
   {/if}
