@@ -36,22 +36,18 @@
   let userAddress: string;
   const contractAddress = {
     mainnet: "KT1ShtH2zCrKMuWGRejEd6RAcnePwxBQeMAN",
-    florencenet: "KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4",
-    granadanet: "KT1T836HqhBu9waqmknStVDCXu2WogZtzsNz",
     hangzhounet: "KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg",
-    idiazabalnet: "KT1HJfmZy3b31ZH8CgduXunHErPyGi3crpjC",
+    ithacanet: "KT1QKmcNBcfzVTXG2kBcE6XqXtEuYYUzMcT5",
     custom: "KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg"
   };
   let contract:
     | ContractAbstraction<Wallet>
     | ContractAbstraction<ContractProvider>;
   let defaultMatrixNode = "beacon-node-1.sky.papers.tech";
-  let connectedNetwork = AvailableNetwork.HANGZHOUNET;
+  let connectedNetwork = AvailableNetwork.ITHACANET;
   let rpcUrl = {
-    florencenet: "https://api.tez.ie/rpc/florencenet", //"https://florencenet-tezos.giganode.io",
-    granadanet: "https://granadanet.api.tez.ie", //"https://florencenet-tezos.giganode.io",
     hangzhounet: "https://hangzhounet.api.tez.ie", //"https://hangzhounet-tezos.giganode.io",
-    idiazabalnet: "https://idiazabalnet.ecadinfra.com/",
+    ithacanet: "https://ithacanet.ecadinfra.com/",
     mainnet: "https://mainnet.api.tez.ie", //"https://mainnet-tezos.giganode.io"
     custom: "https://hangzhounet.api.tez.ie"
   };
@@ -96,18 +92,14 @@
   };
 
   const initBeacon = async () => {
-    if (connectedNetwork === "florencenet") {
-      networkType = NetworkType.FLORENCENET;
-    } else if (connectedNetwork === "granadanet") {
-      networkType = NetworkType.GRANADANET;
-    } else if (connectedNetwork === "hangzhounet") {
+   if (connectedNetwork === "hangzhounet") {
       networkType = NetworkType.HANGZHOUNET;
     } else if (connectedNetwork === "mainnet") {
       networkType = NetworkType.MAINNET;
     } else if (connectedNetwork === "custom") {
       networkType = NetworkType.CUSTOM;
-    } else if (connectedNetwork === "idiazabalnet") {
-      networkType = NetworkType.IDIAZABALNET;
+    } else if (connectedNetwork === "ithacanet") {
+      networkType = NetworkType.ITHACANET;
     }
 
     console.log(connectedNetwork, networkType, defaultMatrixNode);
@@ -168,25 +160,15 @@
         connectedNetwork = AvailableNetwork.MAINNET;
         Tezos = new TezosToolkit(rpcUrl.mainnet);
         break;
-      case "florencenet":
-        openCustomNetwork = false;
-        connectedNetwork = AvailableNetwork.FLORENCENET;
-        Tezos = new TezosToolkit(rpcUrl.florencenet);
-        break;
-      case "granadanet":
-        openCustomNetwork = false;
-        connectedNetwork = AvailableNetwork.GRANADANET;
-        Tezos = new TezosToolkit(rpcUrl.granadanet);
-        break;
       case "hangzhounet":
         openCustomNetwork = false;
         connectedNetwork = AvailableNetwork.HANGZHOUNET;
         Tezos = new TezosToolkit(rpcUrl.hangzhounet);
         break;
-      case "idiazabalnet":
+      case "ithacanet":
         openCustomNetwork = false;
-        connectedNetwork = AvailableNetwork.IDIAZABALNET;
-        Tezos = new TezosToolkit(rpcUrl.idiazabalnet);
+        connectedNetwork = AvailableNetwork.ITHACANET;
+        Tezos = new TezosToolkit(rpcUrl.ithacanet);
         break;
       case "custom":
         openCustomMatrixNode = false;
@@ -211,8 +193,8 @@
         defaultMatrixNode === "beacon-node-1.sky.papers.tech";
         if (!rpcUrl.custom) {
           // in case the user did not provide any custom network URL
-          connectedNetwork = AvailableNetwork.HANGZHOUNET;
-          Tezos = new TezosToolkit(rpcUrl.hangzhounet);
+          connectedNetwork = AvailableNetwork.ITHACANET;
+          Tezos = new TezosToolkit(rpcUrl.ithacanet);
         }
         break;
     }
