@@ -10,7 +10,6 @@ import { BeaconWallet } from "@taquito/beacon-wallet";
 import { char2Bytes, verifySignature } from "@taquito/utils";
 import { RequestSignPayloadInput, SigningType } from "@airgap/beacon-sdk";
 import { get } from "svelte/store";
-import blake from "blakejs";
 import { TestSettings, TestResult } from "./types";
 import store from "./store";
 import contractToOriginate from "./contractToOriginate";
@@ -253,9 +252,14 @@ const signPayload = async (
   const userAddress = await wallet.getPKH();
   const formattedInput = `Tezos Signed Message: beacon-test-dapp.netlify.app/ ${new Date().toISOString()} ${input}`;
   const bytes = char2Bytes(formattedInput);
-  const payload: RequestSignPayloadInput = {
+  /*const payload: RequestSignPayloadInput = {
     signingType: SigningType.RAW,
     payload: "0x05" + "01" + char2Bytes(bytes.length.toString()) + bytes,
+    sourceAddress: userAddress
+  };*/
+  const payload: RequestSignPayloadInput = {
+    signingType: SigningType.MICHELINE,
+    payload: "05" + "0100" + char2Bytes(bytes.length.toString()) + bytes,
     sourceAddress: userAddress
   };
   try {
