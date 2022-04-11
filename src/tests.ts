@@ -323,13 +323,7 @@ const verifySignatureWithTaquito = async (
   if (!input) throw "No input provided";
 
   const userAddress = await wallet.getPKH();
-  const formattedInput = `Tezos Signed Message: beacon-test-dapp.netlify.app/ ${new Date().toISOString()} ${input}`;
-  const bytes = "05" + char2Bytes(formattedInput);
-  const payload: RequestSignPayloadInput = {
-    signingType: SigningType.MICHELINE,
-    payload: bytes,
-    sourceAddress: userAddress
-  };
+  const { payload, formattedInput } = preparePayloadToSign(input, userAddress);
   try {
     const signedPayload = await wallet.client.requestSignPayload(payload);
     // gets user's public key
@@ -337,7 +331,7 @@ const verifySignatureWithTaquito = async (
     const publicKey = activeAccount.publicKey;
     // verifies signature
     const isSignatureCorrect = verifySignature(
-      bytes,
+      payload.payload,
       publicKey,
       signedPayload.signature
     );
@@ -346,7 +340,7 @@ const verifySignatureWithTaquito = async (
         success: true,
         opHash: "",
         output: signedPayload.signature,
-        sigDetails: { input, formattedInput, bytes }
+        sigDetails: { input, formattedInput, bytes: payload.payload }
       };
     } else {
       throw "Forged signature is incorrect";
