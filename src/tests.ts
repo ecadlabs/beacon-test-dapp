@@ -15,6 +15,26 @@ import store from "./store";
 import contractToOriginate from "./contractToOriginate";
 import localStore from "./store";
 
+const preparePayloadToSign = (
+  input: string,
+  userAddress: string
+): {
+  payload: RequestSignPayloadInput;
+  formattedInput: string;
+} => {
+  const formattedInput = `Tezos Signed Message: beacon-test-dapp.netlify.app/ ${new Date().toISOString()} ${input}`;
+  const bytes = char2Bytes(formattedInput);
+  const payload: RequestSignPayloadInput = {
+    signingType: SigningType.MICHELINE,
+    payload: "05" + "0100" + char2Bytes(bytes.length.toString()) + bytes,
+    sourceAddress: userAddress
+  };
+  return {
+    payload,
+    formattedInput
+  };
+};
+
 const sendTez = async (Tezos: TezosToolkit): Promise<TestResult> => {
   let opHash = "";
   try {
@@ -250,25 +270,14 @@ const signPayload = async (
   wallet: BeaconWallet
 ): Promise<TestResult> => {
   const userAddress = await wallet.getPKH();
-  const formattedInput = `Tezos Signed Message: beacon-test-dapp.netlify.app/ ${new Date().toISOString()} ${input}`;
-  const bytes = char2Bytes(formattedInput);
-  /*const payload: RequestSignPayloadInput = {
-    signingType: SigningType.RAW,
-    payload: "0x05" + "01" + char2Bytes(bytes.length.toString()) + bytes,
-    sourceAddress: userAddress
-  };*/
-  const payload: RequestSignPayloadInput = {
-    signingType: SigningType.MICHELINE,
-    payload: "05" + "0100" + char2Bytes(bytes.length.toString()) + bytes,
-    sourceAddress: userAddress
-  };
+  const { payload, formattedInput } = preparePayloadToSign(input, userAddress);
   try {
     const signedPayload = await wallet.client.requestSignPayload(payload);
     return {
       success: true,
       opHash: "",
       output: signedPayload.signature,
-      sigDetails: { input, formattedInput, bytes }
+      sigDetails: { input, formattedInput, bytes: payload.payload }
     };
   } catch (error) {
     console.log(error);
@@ -284,13 +293,7 @@ const signPayloadAndSend = async (
   if (!input) throw "No input provided";
 
   const userAddress = await wallet.getPKH();
-  const formattedInput = `Tezos Signed Message: beacon-test-dapp.netlify.app/ ${new Date().toISOString()} ${input}`;
-  const bytes = "05" + char2Bytes(formattedInput);
-  const payload: RequestSignPayloadInput = {
-    signingType: SigningType.MICHELINE,
-    payload: bytes,
-    sourceAddress: userAddress
-  };
+  const { payload, formattedInput } = preparePayloadToSign(input, userAddress);
   try {
     const signedPayload = await wallet.client.requestSignPayload(payload);
     // gets user's public key
@@ -298,14 +301,14 @@ const signPayloadAndSend = async (
     const publicKey = activeAccount.publicKey;
     // sends transaction to contract
     const op = await contract.methods
-      .check_signature(publicKey, signedPayload.signature, bytes)
+      .check_signature(publicKey, signedPayload.signature, payload.payload)
       .send();
     await op.confirmation();
     return {
       success: true,
       opHash: op.hasOwnProperty("opHash") ? op["opHash"] : op["hash"],
       output: signedPayload.signature,
-      sigDetails: { input, formattedInput, bytes }
+      sigDetails: { input, formattedInput, bytes: payload.payload }
     };
   } catch (error) {
     return { success: false, opHash: "", output: JSON.stringify(error) };
