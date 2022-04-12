@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
-$assetPath: "../../public/images";
+$std-border-radius: 0.4rem;
 
 html,
 body {
@@ -16,253 +16,55 @@ body {
   padding: 0;
   box-sizing: border-box;
   font-size: 1rem;
-  background-image: url(#{$assetPath}/background.png);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
+  background-image: radial-gradient(
+    circle farthest-corner at 22.4% 21.7%,
+    rgba(4, 189, 228, 1) 0%,
+    rgba(2, 83, 185, 1) 100.2%
+  );
 }
 
-a {
-  color: rgb(0, 100, 200);
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-  &:visited {
-    color: rgb(0, 80, 160);
-  }
+main {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30% 70%;
+  height: 100vh;
+  z-index: 10;
 }
 
-$blue: #bee3f8;
-$red: #fed7d7;
-$green: #c6f6d5;
-$dark-ratio: 15;
-
-.box {
-  background: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 5px 16px 0 rgba(31, 38, 135, 0.37);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(6px);
-  border-radius: 10px;
-  padding: 15px 20px;
-  margin: 20px 10px;
-  transition: background-color 1s linear;
-  transition: margin-left 0.2s linear;
-
-  &.connect {
-    padding: 50px 80px;
-    font-size: 3rem;
-    text-align: center;
-
-    button {
-      &.main {
-        font-size: 2rem;
-        padding: 20px;
-      }
-      &.secondary {
-        font-size: 1rem;
-        padding: 10px;
-      }
-    }
-
-    label.custom {
-      font-size: 0.8rem;
-      margin: 0px 10px;
-      padding: 10px 10px 10px 5px;
-      border-radius: 10px;
-      border: solid 3px transparent;
-      cursor: pointer;
-      transition: 0.4s;
-      font-family: "Montserrat", sans-serif;
-      background: rgba(190, 227, 248, 0.4);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(6px);
-      color: darken($blue, $dark-ratio * 2);
-
-      &.selected {
-        border-color: $blue;
-      }
-    }
-
-    input[type="radio"] {
-      appearance: none;
-      outline: none;
-    }
-
-    .select-title {
-      font-size: 0.7rem;
-    }
-  }
-
-  &.address {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    top: 0px;
-    right: 10px;
-  }
-
-  &.test {
-    width: 80%;
-    height: 80%;
-    justify-self: center;
-    align-self: center;
-
-    &:hover {
-      -webkit-animation: scale 0.5s ease-out forwards;
-    }
-
-    input[type="text"] {
-      padding: 10px;
-      border-radius: 10px;
-      width: 50%;
-      border: none;
-      outline: none;
-      background-color: lighten($blue, 12);
-    }
-  }
-
-  &.success {
-    background-color: rgba(209, 250, 229, 1);
-  }
-
-  &.error {
-    background-color: rgba(254, 226, 226, 1);
-  }
-
-  .custom-input {
-    font-size: 1rem;
-    color: darken($blue, $dark-ratio * 2);
-    margin-top: 20px;
-
-    input[type="text"] {
-      padding: 10px;
-      border-radius: 10px;
-      width: 50%;
-      border: none;
-      outline: none;
-      background-color: lighten($blue, 12);
-    }
-  }
-}
-
-@-webkit-keyframes scale {
-  0% {
-    -webkit-transform: scale(1);
-  }
-  100% {
-    -webkit-transform: scale(1.1);
-  }
+span.material-icons-outlined {
+  vertical-align: middle;
 }
 
 button {
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.4s;
-  font-family: "Montserrat", sans-serif;
-  outline: none;
   padding: 10px;
-  margin: 0px 15px;
+  font-size: 1rem;
+  border: solid 2px white;
+  border-radius: $std-border-radius;
+  background-color: transparent;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-  &.green {
-    background-color: $green;
-
-    &:hover:enabled {
-      background-color: darken($green, $dark-ratio);
-    }
+  &:hover {
+    background-color: white;
+    color: rgba(4, 189, 228, 1);
   }
 
-  &.red {
-    background-color: $red;
-
-    &:hover:enabled {
-      background-color: darken($red, $dark-ratio);
-    }
-  }
-
-  &.blue {
-    border: none;
-    background: rgba(190, 227, 248, 0.4);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(6px);
-    color: darken($blue, $dark-ratio * 2);
-
-    &:hover:enabled {
-      background-color: darken($blue, $dark-ratio);
-      color: white;
-    }
-  }
-
-  &.disabled {
-    background-color: #edf2f7;
-  }
-
-  i {
-    padding-right: 20px;
-    border-right: solid 3px darken($blue, $dark-ratio * 2);
-  }
-
-  &:hover i {
-    border-right: solid 3px white;
-  }
-
-  &.loading {
-    -webkit-animation: pulsate-fwd 0.5s ease-in-out infinite both;
-    animation: pulsate-fwd 0.5s ease-in-out infinite both;
+  &.wallet {
+    width: 100%;
   }
 }
-
 select {
   border: none;
-  border-radius: 10px;
-  font-family: "Montserrat", sans-serif;
-  outline: none;
   padding: 10px;
-  margin: 0px 15px;
-  background: rgba(190, 227, 248, 0.4);
-  color: darken($blue, $dark-ratio * 2);
-}
-
-/* ----------------------------------------------
- * Generated by Animista on 2020-12-21 10:34:42
- * Licensed under FreeBSD License.
- * See http://animista.net/license for more info. 
- * w: http://animista.net, t: @cssanimista
- * ---------------------------------------------- */
-
-/**
- * ----------------------------------------
- * animation pulsate-fwd
- * ----------------------------------------
- */
-@-webkit-keyframes pulsate-fwd {
-  0% {
-    -webkit-transform: scale(1);
-    transform: scale(1);
-  }
-  50% {
-    -webkit-transform: scale(1.1);
-    transform: scale(1.1);
-  }
-  100% {
-    -webkit-transform: scale(1);
-    transform: scale(1);
-  }
-}
-@keyframes pulsate-fwd {
-  0% {
-    -webkit-transform: scale(1);
-    transform: scale(1);
-  }
-  50% {
-    -webkit-transform: scale(1.1);
-    transform: scale(1.1);
-  }
-  100% {
-    -webkit-transform: scale(1);
-    transform: scale(1);
-  }
+  font-size: 1rem;
+  border-radius: $std-border-radius;
+  background-color: transparent;
+  border: solid 2px white;
+  color: white;
+  cursor: pointer;
+  outline: none;
 }

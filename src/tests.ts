@@ -3,14 +3,15 @@ import {
   ContractAbstraction,
   Wallet,
   MichelsonMap,
-  OpKind,
-  ContractProvider
+  OpKind
 } from "@taquito/taquito";
-import { BeaconWallet } from "@taquito/beacon-wallet";
+import type { ContractProvider } from "@taquito/taquito";
+import type { BeaconWallet } from "@taquito/beacon-wallet";
 import { char2Bytes, verifySignature } from "@taquito/utils";
-import { RequestSignPayloadInput, SigningType } from "@airgap/beacon-sdk";
+import type { RequestSignPayloadInput } from "@airgap/beacon-sdk";
+import { SigningType } from "@airgap/beacon-sdk";
 import { get } from "svelte/store";
-import { TestSettings, TestResult } from "./types";
+import type { TestSettings, TestResult } from "./types";
 import store from "./store";
 import contractToOriginate from "./contractToOriginate";
 import localStore from "./store";
@@ -228,11 +229,11 @@ const batchApiContractCallsTest = async (
   try {
     const storage: any = await contract.storage();
     /*const batch = Tezos.wallet
-      .batch()
-      .withContractCall(contract.methods.simple_param(5))
-      .withContractCall(contract.methods.simple_param(6))
-      .withContractCall(contract.methods.simple_param(7));
-    const op = await batch.send();*/
+        .batch()
+        .withContractCall(contract.methods.simple_param(5))
+        .withContractCall(contract.methods.simple_param(6))
+        .withContractCall(contract.methods.simple_param(7));
+      const op = await batch.send();*/
     const batch = [
       {
         kind: OpKind.TRANSACTION,
@@ -386,8 +387,8 @@ const tryConfirmationObservable = async (
   let opHash = "";
   try {
     /*const op = await Tezos.wallet
-      .transfer({ to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb", amount: 1 })
-      .send();*/
+        .transfer({ to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb", amount: 1 })
+        .send();*/
     store.resetConfirmationObservableTest();
 
     const storage: any = await contract.storage();
@@ -434,7 +435,7 @@ const permit = async (Tezos: TezosToolkit, wallet: BeaconWallet) => {
       .mint(store.userAddress, 100)
       .toTransferParams().parameter?.value;
     const mintParamType = contract.entrypoints.entrypoints["mint"];
-    // packs the entrypoint call
+    // packs the entrypoint call
     const rawPacked = await Tezos.rpc.packData({
       data: mintParam,
       type: mintParamType
@@ -442,7 +443,7 @@ const permit = async (Tezos: TezosToolkit, wallet: BeaconWallet) => {
     const packedParam = rawPacked.packed;
     const paramHash = packedParam;
     /*"05" +
-      buf2hex(blake.blake2b(hex2buf(packedParam), null, 32).buffer as Buffer);*/
+        buf2hex(blake.blake2b(hex2buf(packedParam), null, 32).buffer as Buffer);*/
     // hashes the parameter for the signature
     const chainId = await Tezos.rpc.getChainId();
     const contractStorage: any = await contract.storage();
@@ -499,16 +500,16 @@ const permit = async (Tezos: TezosToolkit, wallet: BeaconWallet) => {
     console.log(sigParamPacked.packed, paramHash);
     // signs the hash
     /*const sig = await wallet.client.requestSignPayload({
-      signingType: SigningType.MICHELINE,
-      payload: paramHash,
-      sourceAddress: store.userAddress
-    });
-    const { publicKey } = await wallet.client.getActiveAccount();
-    const permitMethodOp = await contract.methods
-      .permit([{ 0: publicKey, 1: sig.signature, 2: paramHash }])
-      .send();
-    await permitMethodOp.confirmation();
-    console.log(permitMethodOp.opHash);*/
+        signingType: SigningType.MICHELINE,
+        payload: paramHash,
+        sourceAddress: store.userAddress
+      });
+      const { publicKey } = await wallet.client.getActiveAccount();
+      const permitMethodOp = await contract.methods
+        .permit([{ 0: publicKey, 1: sig.signature, 2: paramHash }])
+        .send();
+      await permitMethodOp.confirmation();
+      console.log(permitMethodOp.opHash);*/
   } catch (error) {
     console.error(error);
   }
@@ -516,7 +517,25 @@ const permit = async (Tezos: TezosToolkit, wallet: BeaconWallet) => {
   return { success: false, opHash: "" };
 };
 
-export default (
+export const list = [
+  "Send tez",
+  "Contract call with int",
+  "Contract call with (pair nat string)",
+  "Contract call that fails",
+  "Contract call that fails with int",
+  "Contract call that fails with (pair int string)",
+  "Originate smart contract with success",
+  "Use the Batch API with a wallet",
+  "Use the Batch API for contract calls",
+  "Sign the provided payload",
+  "Sign and send the signature to the contract",
+  "Verify a provided signature",
+  "Set the transaction limits",
+  "Subscribe to confirmations",
+  "Permit contract"
+];
+
+export const init = (
   Tezos: TezosToolkit,
   contract: ContractAbstraction<Wallet> | ContractAbstraction<ContractProvider>,
   wallet: BeaconWallet | undefined
@@ -664,9 +683,9 @@ export default (
     inputRequired: false
   }
   /*{
-      id: "originate-fail",
-      name: "Originate smart contract that fails",
-      description: "This test originates a smart contract that fails",
-      run: () => console.log("originate-fail")
-    }*/
+        id: "originate-fail",
+        name: "Originate smart contract that fails",
+        description: "This test originates a smart contract that fails",
+        run: () => console.log("originate-fail")
+      }*/
 ];

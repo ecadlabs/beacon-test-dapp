@@ -22,3 +22,6 @@ export enum AvailableNetwork {
   "MAINNET" = "mainnet",
   "CUSTOM" = "custom"
 }
+
+export type TezosContractAddress = `KT1${string}`;
+export type TezosAccountAddress = `tz${"1" | "2" | "3"}${string}`;
