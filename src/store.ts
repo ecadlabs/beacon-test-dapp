@@ -3,18 +3,19 @@ import type { NetworkType } from "@airgap/beacon-sdk";
 import type { TezosToolkit } from "@taquito/taquito";
 import type { BeaconWallet } from "@taquito/beacon-wallet";
 import { defaultMatrixNode } from "./config";
+import type { TestSettings } from "./types";
 
 interface State {
   Tezos: TezosToolkit;
-  userAddress: string | undefined;
-  userBalance: number | undefined;
-  wallet: BeaconWallet | undefined;
+  userAddress: string;
+  userBalance: number;
+  wallet: BeaconWallet;
   disableDefaultEvents: boolean;
-  networkType: NetworkType | undefined;
-  matrixNode: string | undefined;
-  confirmationObservableTest:
-    | undefined
-    | { level: number; currentConfirmation: number }[];
+  networkType: NetworkType;
+  matrixNode: string;
+  confirmationObservableTest: { level: number; currentConfirmation: number }[];
+  selectedTest: string;
+  tests: Array<TestSettings>;
 }
 
 const initialState: State = {
@@ -25,7 +26,9 @@ const initialState: State = {
   matrixNode: defaultMatrixNode,
   disableDefaultEvents: true,
   networkType: undefined,
-  confirmationObservableTest: undefined
+  confirmationObservableTest: undefined,
+  selectedTest: undefined,
+  tests: []
 };
 
 const store = writable(initialState);
@@ -80,6 +83,16 @@ const state = {
     store.update(store => ({
       ...store,
       confirmationObservableTest: undefined
+    })),
+  updateSelectedTest: (testId: string) =>
+    store.update(store => ({
+      ...store,
+      selectedTest: testId
+    })),
+  updateTests: (tests: Array<TestSettings>) =>
+    store.update(store => ({
+      ...store,
+      tests
     }))
 };
 

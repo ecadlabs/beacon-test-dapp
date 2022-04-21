@@ -53,6 +53,10 @@
 
       const userAddress = (await $store.wallet.getPKH()) as TezosAccountAddress;
       store.updateUserAddress(userAddress);
+
+      const Tezos = new TezosToolkit(rpcUrl[$store.networkType]);
+      Tezos.setWalletProvider($store.wallet);
+      store.updateTezos(Tezos);
     } catch (err) {
       console.error(err);
     }
@@ -74,6 +78,10 @@
       store.updateWallet(wallet);
       const userAddress = (await wallet.getPKH()) as TezosAccountAddress;
       store.updateUserAddress(userAddress);
+
+      const Tezos = new TezosToolkit(rpcUrl[$store.networkType]);
+      Tezos.setWalletProvider(wallet);
+      store.updateTezos(Tezos);
     }
   });
 
@@ -90,29 +98,30 @@
 
 <style lang="scss">
   #wallet-button {
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: rgba(80, 227, 194, 0.25);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border-radius: 10px;
-    border: 2px solid rgba(255, 255, 255, 1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+
+    padding: 10px;
+    margin: 10px 0px;
 
     &:hover {
       color: white;
+    }
+
+    @supports not (backdrop-filter: blur(4px)) {
+      background: rgba(80, 227, 194, 0.9);
     }
   }
 
   .wallet-container {
     position: relative;
-    background: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
 
     .wallet-dialog {
       position: absolute;
-      top: 120%;
+      top: 100%;
       left: 40%;
       background: rgba(255, 255, 255, 0.25);
       box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
@@ -151,8 +160,8 @@
 
 <svelte:window
   on:click={event => {
-    if (event.target.id !== "wallet-button" && showDialog) {
-      showDialog = false;
+    if (showDialog === true) {
+      // showDialog = false;
     }
   }}
 />
@@ -162,7 +171,9 @@
     <button
       class="wallet"
       id="wallet-button"
-      on:click={() => (showDialog = !showDialog)}
+      on:click={() => {
+        showDialog = !showDialog;
+      }}
     >
       <span>
         <span class="material-icons-outlined"> person_outline </span>
@@ -209,6 +220,7 @@
   </div>
 {:else}
   <button id="wallet-button" on:click={connectWallet}>
+    <span class="material-icons-outlined"> person_off </span>
     No wallet connected
   </button>
 {/if}

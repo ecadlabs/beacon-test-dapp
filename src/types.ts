@@ -10,17 +10,10 @@ export interface TestSettings {
   id: string;
   name: string;
   description: string;
-  run: (input: any) => Promise<TestResult>;
+  run: (input?: any) => Promise<TestResult>;
   showExecutionTime: boolean;
   inputRequired: boolean;
   inputType?: "string" | "set-limits";
-}
-
-export enum AvailableNetwork {
-  "HANGZHOUNET" = "hangzhounet",
-  "ITHACANET" = "ithacanet",
-  "MAINNET" = "mainnet",
-  "CUSTOM" = "custom"
 }
 
 export type TezosContractAddress = `KT1${string}`;

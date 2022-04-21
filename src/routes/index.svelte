@@ -1,27 +1,21 @@
 <script lang="ts">
   import { TezosToolkit } from "@taquito/taquito";
   import { NetworkType } from "@airgap/beacon-sdk";
-  import { AvailableNetwork } from "../types";
   import { rpcUrl, defaultMatrixNode } from "../config";
   import store from "../store";
-
-  let connectedNetwork = AvailableNetwork.ITHACANET;
-  let matrixNode = defaultMatrixNode;
+  import TestContainer from "$lib/TestContainer.svelte";
 
   const changeNetwork = event => {
     switch (event.target.value) {
       case "mainnet":
-        connectedNetwork = AvailableNetwork.MAINNET;
         store.updateTezos(new TezosToolkit(rpcUrl.mainnet));
         store.updateNetworkType(NetworkType.MAINNET);
         break;
       case "hangzhounet":
-        connectedNetwork = AvailableNetwork.HANGZHOUNET;
         store.updateTezos(new TezosToolkit(rpcUrl.hangzhounet));
         store.updateNetworkType(NetworkType.HANGZHOUNET);
         break;
       case "ithacanet":
-        connectedNetwork = AvailableNetwork.ITHACANET;
         store.updateTezos(new TezosToolkit(rpcUrl.ithacanet));
         store.updateNetworkType(NetworkType.ITHACANET);
         break;
@@ -43,7 +37,6 @@
         store.updateMatrixNode("beacon-node-1.sky.papers.tech");
         if (!rpcUrl.custom) {
           // in case the user did not provide any custom network URL
-          connectedNetwork = AvailableNetwork.ITHACANET;
           store.updateTezos(new TezosToolkit(rpcUrl.ithacanet));
         }
         break;
@@ -88,6 +81,10 @@
           justify-content: center;
         }
       }
+
+      @supports not (backdrop-filter: blur(4px)) {
+        background: rgba(4, 189, 228, 0.8);
+      }
     }
   }
 
@@ -97,7 +94,7 @@
 </style>
 
 {#if $store.userAddress}
-  <div class="test-container">User connected</div>
+  <TestContainer />
 {:else}
   <div class="connect-container">
     <div class="connect-options">
@@ -120,12 +117,12 @@
           <span class="select-title">RPC node:</span>
           <select
             id="rpc-node-select"
-            bind:value={connectedNetwork}
+            value={$store.networkType}
             on:change={changeNetwork}
             on:blur={changeNetwork}
           >
-            {#each Object.values(AvailableNetwork) as network}
-              <option value={network} selected={connectedNetwork === network}>
+            {#each Object.values(NetworkType) as network}
+              <option value={network} selected={$store.networkType === network}>
                 {network[0].toUpperCase() + network.slice(1)}
               </option>
             {/each}

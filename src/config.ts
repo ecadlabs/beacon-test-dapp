@@ -10,3 +10,10 @@ export const rpcUrl = {
 export const defaultMatrixNode = "beacon-node-1.sky.papers.tech";
 
 export const defaultNetworkType = NetworkType.ITHACANET;
+
+export const contractAddress = {
+  mainnet: "KT1ShtH2zCrKMuWGRejEd6RAcnePwxBQeMAN",
+  hangzhounet: "KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg",
+  ithacanet: "KT1QKmcNBcfzVTXG2kBcE6XqXtEuYYUzMcT5",
+  custom: "KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg"
+};

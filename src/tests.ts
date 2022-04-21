@@ -40,7 +40,7 @@ const sendTez = async (Tezos: TezosToolkit): Promise<TestResult> => {
   let opHash = "";
   try {
     const op = await Tezos.wallet
-      .transfer({ to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb", amount: 1 })
+      .transfer({ to: "tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb", amount: 0.1 })
       .send();
     await op.confirmation();
     opHash = op.opHash;
@@ -543,7 +543,7 @@ export const init = (
   {
     id: "send-tez",
     name: "Send tez",
-    description: "This test sends 1 tez to Alice's address",
+    description: "This test sends 0.1 tez to Alice's address",
     run: () => sendTez(Tezos),
     showExecutionTime: false,
     inputRequired: false

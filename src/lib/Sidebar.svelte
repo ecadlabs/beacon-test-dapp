@@ -1,7 +1,19 @@
 <script lang="ts">
+  import { afterUpdate } from "svelte";
   import { init, list } from "../tests";
   import store from "../store";
   import Wallet from "./Wallet.svelte";
+  import { contractAddress } from "../config";
+
+  afterUpdate(async () => {
+    if ($store.Tezos && $store.wallet && $store.tests.length === 0) {
+      const contract = await $store.Tezos.wallet.at(
+        contractAddress[$store.networkType]
+      );
+      const tests = init($store.Tezos, contract, $store.wallet);
+      store.updateTests(tests);
+    }
+  });
 </script>
 
 <style lang="scss">
@@ -10,7 +22,7 @@
     height: calc(100vh - 20px);
     color: white;
     display: grid;
-    grid-template-rows: 5% 5% 90%;
+    grid-template-rows: 8% 5% 87%;
     position: relative;
     z-index: 100;
 
@@ -28,7 +40,7 @@
     }
 
     ul {
-      height: 90%;
+      height: 95%;
       list-style-image: url(description_white_24dp.svg);
       list-style-position: inside;
       overflow: auto;
@@ -55,6 +67,10 @@
           height: 30px;
           vertical-align: top;
         }
+
+        @supports not (backdrop-filter: blur(4px)) {
+          background: rgba(80, 227, 194, 0.9);
+        }
       }
     }
   }
@@ -66,10 +82,22 @@
     <h4>Available tests ({list.length})</h4>
   </div>
   <ul>
-    {#each list as test}
-      <li>
-        <span>{test}</span>
-      </li>
-    {/each}
+    {#if $store.tests.length === 0}
+      {#each list as test}
+        <li>
+          <span>{test}</span>
+        </li>
+      {/each}
+    {:else}
+      {#each $store.tests as test}
+        <li
+          id={test.id}
+          on:click={() => store.updateSelectedTest(test.id)}
+          style="cursor:pointer"
+        >
+          <span>{test.name}</span>
+        </li>
+      {/each}
+    {/if}
   </ul>
 </section>

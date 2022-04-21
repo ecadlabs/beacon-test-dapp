@@ -45,12 +45,13 @@ button {
   cursor: pointer;
   transition: 0.3s;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
+  gap: 10px;
 
   &:hover {
-    background-color: white;
-    color: rgba(4, 189, 228, 1);
+    background-color: rgba(4, 189, 228, 1);
+    border-color: rgba(4, 189, 228, 1);
   }
 
   &.wallet {
