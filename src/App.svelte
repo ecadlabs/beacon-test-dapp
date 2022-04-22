@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   import { TezosToolkit } from "@taquito/taquito";
   import type {
     ContractAbstraction,
@@ -92,7 +92,7 @@
   };
 
   const initBeacon = async () => {
-   if (connectedNetwork === "hangzhounet") {
+    if (connectedNetwork === "hangzhounet") {
       networkType = NetworkType.HANGZHOUNET;
     } else if (connectedNetwork === "mainnet") {
       networkType = NetworkType.MAINNET;
