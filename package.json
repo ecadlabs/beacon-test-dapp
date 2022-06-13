@@ -44,10 +44,10 @@
   "dependencies": {
     "@airgap/beacon-sdk": "^3.1.1",
     "@ledgerhq/hw-transport-u2f": "^5.36.0-deprecated",
-    "@taquito/beacon-wallet": "13.0.0-beta-RC.0",
-    "@taquito/ledger-signer": "13.0.0-beta-RC.0",
-    "@taquito/taquito": "13.0.0-beta-RC.0",
-    "@taquito/utils": "13.0.0-beta-RC.0",
+    "@taquito/beacon-wallet": "13.0.0",
+    "@taquito/ledger-signer": "13.0.0",
+    "@taquito/taquito": "13.0.0",
+    "@taquito/utils": "13.0.0",
     "blakejs": "^1.1.1",
     "serve": "^11.3.2"
   },
