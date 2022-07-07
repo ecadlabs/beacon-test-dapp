@@ -29,6 +29,7 @@
   // https://better-call.dev/florencenet/KT1PzUGbdKaN332Smfd1ExpdKQ7BSzzJRqJ4/operations
   // https://better-call.dev/granadanet/KT1T836HqhBu9waqmknStVDCXu2WogZtzsNz/operations
   // https://better-call.dev/hangzhounet/KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg/operations
+  // https://better-call.dev/ithacanet/KT1QKmcNBcfzVTXG2kBcE6XqXtEuYYUzMcT5/operations
 
   let tests: TestSettings[] = [];
   let Tezos: TezosToolkit;
@@ -36,8 +37,8 @@
   let userAddress: string;
   const contractAddress = {
     mainnet: "KT1ShtH2zCrKMuWGRejEd6RAcnePwxBQeMAN",
-    hangzhounet: "KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg",
     ithacanet: "KT1QKmcNBcfzVTXG2kBcE6XqXtEuYYUzMcT5",
+    jakartanet: "KT1QDfoyiHi9ZsKm13rR6RiSjvKj1qRujDcM",
     custom: "KT1T2gL26SwYMxpkR5SZT1pHRBF84knfw8Cg"
   };
   let contract:
@@ -46,10 +47,10 @@
   let defaultMatrixNode = "beacon-node-1.sky.papers.tech";
   let connectedNetwork = AvailableNetwork.ITHACANET;
   let rpcUrl = {
-    hangzhounet: "https://hangzhounet.api.tez.ie", //"https://hangzhounet-tezos.giganode.io",
     ithacanet: "https://ithacanet.ecadinfra.com/",
+    jakartanet: "https://jakartanet.ecadinfra.com/",
     mainnet: "https://mainnet.api.tez.ie", //"https://mainnet-tezos.giganode.io"
-    custom: "https://hangzhounet.api.tez.ie"
+    custom: "https://jakartanet.ecadinfra.com/"
   };
   let initialLoading = true;
   let openModal = false;
@@ -92,14 +93,14 @@
   };
 
   const initBeacon = async () => {
-    if (connectedNetwork === "hangzhounet") {
-      networkType = NetworkType.HANGZHOUNET;
+    if (connectedNetwork === "ithacanet") {
+      networkType = NetworkType.ITHACANET;
     } else if (connectedNetwork === "mainnet") {
       networkType = NetworkType.MAINNET;
     } else if (connectedNetwork === "custom") {
       networkType = NetworkType.CUSTOM;
-    } else if (connectedNetwork === "ithacanet") {
-      networkType = NetworkType.ITHACANET;
+    } else if (connectedNetwork === "jakartanet") {
+      networkType = NetworkType.JAKARTANET;
     }
 
     console.log(connectedNetwork, networkType, defaultMatrixNode);
@@ -160,15 +161,15 @@
         connectedNetwork = AvailableNetwork.MAINNET;
         Tezos = new TezosToolkit(rpcUrl.mainnet);
         break;
-      case "hangzhounet":
-        openCustomNetwork = false;
-        connectedNetwork = AvailableNetwork.HANGZHOUNET;
-        Tezos = new TezosToolkit(rpcUrl.hangzhounet);
-        break;
       case "ithacanet":
         openCustomNetwork = false;
         connectedNetwork = AvailableNetwork.ITHACANET;
         Tezos = new TezosToolkit(rpcUrl.ithacanet);
+        break;
+      case "jakartanet":
+        openCustomNetwork = false;
+        connectedNetwork = AvailableNetwork.JAKARTANET;
+        Tezos = new TezosToolkit(rpcUrl.jakartanet);
         break;
       case "custom":
         openCustomMatrixNode = false;

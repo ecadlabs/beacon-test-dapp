@@ -17,8 +17,8 @@ export interface TestSettings {
 }
 
 export enum AvailableNetwork {
-  "HANGZHOUNET" = "hangzhounet",
   "ITHACANET" = "ithacanet",
+  "JAKARTANET" = 'jakartanet',
   "MAINNET" = "mainnet",
   "CUSTOM" = "custom"
 }
